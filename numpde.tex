@@ -26,7 +26,7 @@
 % https://tex.stackexchange.com/questions/186044/how-a-framebox-will-appear-around-the-text-on-a-click
 
 \input{rgb}
-\newcommand{\lb}[1]{{\color{lightblue}#1}}    % from prosper azure titles
+\newcommand{\lb}[1]{{\color{darkblue}#1}}    % from prosper azure titles
 \newcommand{\bi}{\begin{itemize}}
 \newcommand{\ei}{\end{itemize}}
 \newcommand{\ben}{\begin{enumerate}}
@@ -62,11 +62,15 @@
 \newcommand{\vt}[2]{\biggl[\begin{matrix}#1\\#2\end{matrix}\biggr]} % 2-col-vec
 \newcommand{\mt}[4]{\biggl[\begin{matrix}#1&#2\\#3&#4\end{matrix}\biggr]} %2x2
 
+% macros for this work
 \newcommand{\RR}{\mathbb{R}}
 \newcommand{\sfrac}[2]{\mbox{\small $\frac{#1}{#2}$}}
 \newcommand{\half}{\sfrac{1}{2}}
 \newcommand{\bigO}{{\mathcal O}}
 \newcommand{\eps}{\varepsilon}
+\newcommand{\x}{\mbf{x}}
+\newcommand{\y}{\mbf{y}}
+
 
 \DeclareMathOperator{\im}{Im}
 \DeclareMathOperator{\re}{Re}
@@ -92,59 +96,320 @@
 
   
   \lb{Motivations}
-  
-  Function $f(x)$ described by $\infty$ number of points
 
-  how handle efficiently and approximately (but accurately) in computer? 
+  exact func.\ $f(x)$ described by $\infty$ number of points
+
+  how handle approximately (but accurately) in computer, using least cost (bytes)? 
   \bi
 
 \item
 Interpolation: cheap but accurate look-up table for expensive $f(x)$
 
-\item Integration:
+data fitting:
+given non-noisy data $f(x_i)$ at some $x_i$, model $f(x)$ at other points $x$?
 
-  
+\quad\com{Contrast: fit noisy data = 
+  learning (pdf for) params in model, via likelihood/prior}
+
+\item (Numerical) integration:
+
+  eg computing expectation values given a pdf 
+
+\quad\com{Contrast: Monte Carlo (random, high-dim.) integration, Thurs am}
   
 \item Differentiation:
+
+  get gradient $\nabla f$ in order to optimize or
   
-  
-\item Spectral methods:
-  
+\item Spectral (often Fourier) methods:
+
+If $f(x)$ is smooth, handle very accurately without much extra cost
+
 \ei
+
+Deterministic (non-random) methods.
+
+Integr/diff crucial for numerical ODEs and PDEs \com{topic of LECTURE II}
+
+\end{frame}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{Goals LECTURE I}
+
+TODO
+  
+  teach range of practical methods focusing on 1D
+
+  pointers to dimensions $d>1$
+
+  concepts: convergence order, spectral methods
+
+  rounding error
+
   
 \end{frame}
 
 
 % ---------------------------------------------------
+\begin{noframe}\ft{Interpolation in 1D ($d=1$)}
+
+\bmp{3in}
+  Say $y_j = f(x_j)$ known at nodes $\{x_j\}$ \quad \com{$N$-pt ``grid''}
+
+  exact data, not noisy
+  
+  want interpolant $\tilde f(x)$, s.t.\ $\tilde f(\x_j)=y_j$
+  \emp
+  \hfill
+\pig{1.5in}{figs/fsamp}
+
+\pause
+\sg
+
+\bmp{3.9in}
+  hopeless w/o assumptions on $f$, eg smoothness, otherwise\dots
+
+  \gb extra info helps, eg $f$ periodic, or $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$
+  \emp
+  \hfill
+\pig{.5in}{figs/fcrazy}
+
+\pause
+\vg
+
+\bmp{3in}
+\lb{Simplest}: use value at $x_j$ nearest to $x$
+
+\hfill
+\com{``snap to grid''}
+%\com{$h=x_{j+1}-x_j$}
+
+Error $\max_x|\tilde f(x)-f(x)| = \bigO(h)$ as $h\to 0$
+
+\quad \com{holds if $f'$ bounded; can be nonsmooth but not crazy}
+  
+\emp
+\hfill
+\pig{1.4in}{figs/fsnap}
+
+\sg
+
+\gre{Recall asymptotic $\bigO(h)$: exists $C,h_0>0$ s.t.\ error $\le Ch$ for all $h<h_0$}
+
+\pause
+\vg
+
+\bmp{3in}
+\lb{Piecewise linear}:
+
+\hfill \com{``connect the dots''}
+
+max error $ = \bigO(h^2)$ as $h\to 0$
+
+\quad \com{needs $f''$ bounded, ie smoother than before}
+  
+\emp
+\hfill
+\pig{1.4in}{figs/flin}
+
+\vg
+
+Message: a higher order method is only higher order if $f$ smooth enough
+
+\end{noframe}
+
+
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Interlude: convergence rates}
+
+  Should know or measure convergence rate of any method you use
+
+\gb ``effort'' parameter $N$ \com{eg \# grid-points = $1/h^d$ where $h = $ grid spacing,  $d=$ dim}
+
+We just saw algebraic conv.\ error $=\bigO(N^{-k})$, for order $k=1,2$
+
+\pause
+
+Is only one graph in numerical analysis: \framebox{``relative error vs effort''}
+
+\sg
+
+\pig{2.2in}{figs/convloglog}
+\pause
+\hfill
+\pig{2.2in}{figs/convlinlog}
+\pause
+
+\sg
+
+Note how spectral gets many digits for small $N$
+\hfill \com{crucial for eg 3D prob.}
+%Let's say a 3D prob.\ must have $N\le 300$: here spectral is 
+
+\com{``spectral'' = ``superalgebraic'', $\bigO(N^{-k})$ for any $k$}
+
+\gb how many digits to you want? \com{for 1-digit (10\% error), low order ok, easier to code}
+
+\vg
+
+\mbox{{\tt <rant>}
+test your code w/ {\em known exact soln} to check error conv.
+{\tt <\textbackslash rant>} }
+
+\quad \com{What is the prefactor $C$ in error $\le Ch^k$ ? Has asymp.\ rate even kicked in yet? :)}
+
+%You may not believe your model, but at least should trust its soln
+
+\end{noframe}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Higher algebraic order interpolation}
+
+  local Lagrange: arb. high ord, but formally discont.
+
+  usually not a problem.
+
+  barycentric
+
+pointer to: splines (if you {\em must} have higher-order continuity
+  
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{First spectral method: periodic $f$}
+
+exp conv if $f$ analytic in strip.
+
+
+
+what if $f$ not as smooth as this?
+
+relapse to conv.\ order given by smoothness of $f$
+
+why? $\hat{f}_n$ decay
+
+
+
+Messages: spectral conv usually requires understanding $f$ off the real axis!
+
+smooth = rapid Fourier series decay = rapid conv
+
+
+\end{frame}
+
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{Interpolation in $d>1$}
+
+
+  can you choose the points?
+
+  data fit: often no
+  
+  PDE solve: usually yes - product grids, piecewise (FEM), etc
+  
+    \bmp{2.1in}
+  in $d>1$ getting $f(\x)$ from scattered data $\{\x_i\}$ is hard
+
+  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v low ord}
+  
+  \emp
+  \hfill
+  \pig{2.3in}{figs/gterrain_lab}
+
+  unless you know $f$ smooth, eg fit local multivariate polynomial
+
+  kriging
+
+  
+ \end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Numerical integration}
+
+Usually the user gets to choose the nodes $x_j$
+  
+  Once have interpolant $\tilde f$ from data $f(x_j)$, can {\em
+    integrate it exactly}
+
+  \com{``intepolatory quadrature''}
+
+  Eg: piecewise linear gives composite trap rule  $\bigO(N^{-2})$
+
+  periodic spectral gives periodic trap rule $\bigO(c^{-N})$ if analytic
+
+  
+  
+  
+\end{frame}
+
+% ---------------------------------------------------
 \begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+TO DO
+
+
+extrapolation
 
   Rounding error  \cite[Ch.~5--6]{GCbook}
   
 \end{frame}
 
-% ---------------------------------------------------
-\begin{frame}\ft{}
 
-\end{frame}
 
-% ---------------------------------------------------
-\begin{frame}\ft{}
 
-\end{frame}
-
-% ---------------------------------------------------
-\begin{frame}\ft{}
-
-\end{frame}
-
-% ---------------------------------------------------
-\begin{frame}\ft{}
-
-\end{frame}
 
 % ---------------------------------------------------
 \begin{frame}\ft{LECTURE II: numerical differential equations}
 
+  For now we start with ``elliptic'': time-independent problems
+
+  Motivations
+  
+  eg steady-state (equilibrium) diffusion of a chemical
+
+  eg what electric potential caused by bunch of charges surrounded by H$_2$O ?
+  (protein electrostatics)
+
+  Find $u$ solving $\Delta u = f$,  \com{$f = $ volume source term}
+
+  \hfill \com{$\Delta$ means Laplacian $\partial^2/\partial x^2 + \partial^2/\partial y^2 + \dots$. \quad $\Delta u$ is curvature of $u$}
+
+  plus some BCs on $u$
+
+  eg viscous fluid flow: $\mbf{u}$ is velocity field, sat Stokes eqns
+  
+  eg what is ground state of quantum system, solving $\Delta u = Eu$
+
+
+  
+  Mike will in next talk overview this and 2 other flavors of PDE
+
+  
+  
 \end{frame}
 
 % ---------------------------------------------------
@@ -195,7 +460,7 @@ Interpolation: cheap but accurate look-up table for expensive $f(x)$
 % ---------------------------------------------------
 \begin{frame}\ft{}
 
-\bibliographystyle{abbrv}
+\bibliographystyle{amsalpha}  % abbrv
 \bibliography{numpde}
   
 \end{frame}
