@@ -1,0 +1,205 @@
+% FWAM lecture. Func Approx & PDE. CCM beamer template.
+%
+% Build:
+% pdflatex -shell-escape numpde; bibtex numpde; pdflatex numpde
+%
+% (here -shell-escape lets it call epstopdf to convert .eps to .stuff.pdf)
+
+\documentclass[t]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{epstopdf}  % handle EPS
+
+\usepackage{multimedia,hyperref}   % embeds but needs external movie files
+
+\usepackage{bm,tcolorbox}
+
+% Alex's macros for beamer. Use macros to let you type less stuff
+\newcommand{\ft}[1]{\frametitle{#1}}
+% note: can't make macros for begin/end frame: http://tex.stackexchange.com/questions/326787/difficulty-in-creating-macro-newcommand-for-the-beginning-and-end-of-frames-i
+
+% frame box on next slide
+\newcommand<>{\tmpbox}[1]{
+    \definecolor{colorbox}{RGB}{255,255,255}
+    \only#2{\definecolor{colorbox}{RGB}{255,128,0}}
+    \tcbox[left=0pt,right=0pt,top=0pt,bottom=0pt,colback=white,colframe=colorbox,nobeforeafter,tcbox raise base]{#1}
+}
+% https://tex.stackexchange.com/questions/186044/how-a-framebox-will-appear-around-the-text-on-a-click
+
+\input{rgb}
+\newcommand{\lb}[1]{{\color{lightblue}#1}}    % from prosper azure titles
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\mbf}[1]{{\bm #1}}           % requires bm package
+\newtheorem{thm}{Theorem}
+\newcommand{\ig}[2]{\includegraphics[#1]{#2}}
+\newcommand{\tbox}[1]{{\mbox{\tiny #1}}}
+\newcommand{\cbox}[1]{{\mbox{\scriptsize #1}}}
+%\newcommand{\who}[1]{{\tiny \textcolor{green}{(#1)}}}
+\newcommand{\who}[1]{{\scriptsize \textcolor{darkgreen}{(#1)}}}
+\newcommand{\com}[1]{{\scriptsize \textcolor{purple}{#1}}}      % comment
+\newcommand{\co}[1]{\mbox{\scriptsize \tt \textcolor{black} #1}}          % code
+\newcommand{\vg}{\vspace{2ex}}
+\newcommand{\sg}{\vspace{1ex}}
+\newcommand{\hg}{\vspace{0.5ex}}
+\newcommand{\gb}{\ensuremath{\textcolor{darkgreen}{\bullet\;}}\ }
+\newcommand{\bmp}[1]{\begin{minipage}{#1}}
+\newcommand{\bmpt}[1]{\begin{minipage}[t]{#1}}
+\newcommand{\emp}{\end{minipage}}
+\newcommand{\pig}[2]{\bmp{#1}\includegraphics[width=#1]{#2}\emp} % mp-fig, nogap
+\newcommand{\pigm}[3]{\bmp{#1}\href{#3}{\includegraphics[width=#1]{#2}}\emp} % w/ movie
+\newcommand{\ora}[1]{{\color{orange} #1}}
+\newcommand{\gre}[1]{{\color{green} #1}}
+\newcommand{\yel}[1]{{\color{yellow} #1}}
+\newcommand{\sr}[1]{{\scriptsize #1}}
+\newcommand{\vt}[2]{\biggl[\begin{matrix}#1\\#2\end{matrix}\biggr]} % 2-col-vec
+\newcommand{\mt}[4]{\biggl[\begin{matrix}#1&#2\\#3&#4\end{matrix}\biggr]} %2x2
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\sfrac}[2]{\mbox{\small $\frac{#1}{#2}$}}
+\newcommand{\half}{\sfrac{1}{2}}
+\newcommand{\bigO}{{\mathcal O}}
+\newcommand{\eps}{\varepsilon}
+
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\re}{Re}
+
+\title{FWAM Session B: Function Approximation and Differential Equations}
+\date{Wed, 10/30/19}
+\author{\textbf{Alex Barnett}\inst{1} and \textbf{Keaton Burns}\inst{1,2}}
+\institute{\inst{1} Center for Computational Mathematics, Flatiron Institute\\
+  \inst{2} Center for Computational Mathematics, Flatiron Institute,
+  and Department of Mathematics, MIT
+}
+\usetheme{CCM}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{LECTURE 1: interpolation, integration, spectral methods}
+
+  
+  \lb{Motivations}
+  
+  Function $f(x)$ described by $\infty$ number of points
+
+  how handle efficiently and approximately (but accurately) in computer? 
+  \bi
+
+\item
+Interpolation: cheap but accurate look-up table for expensive $f(x)$
+
+\item Integration:
+
+  
+  
+\item Differentiation:
+  
+  
+\item Spectral methods:
+  
+\ei
+  
+\end{frame}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+  Rounding error  \cite[Ch.~5--6]{GCbook}
+  
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{LECTURE II: numerical differential equations}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\bibliographystyle{abbrv}
+\bibliography{numpde}
+  
+\end{frame}
+
+
+
+\end{document}
