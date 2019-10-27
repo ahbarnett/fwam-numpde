@@ -147,10 +147,19 @@ TODO
 
   pointers to dimensions $d>1$
 
-  concepts: convergence order, spectral methods
+  concepts:
+
+  convergence order
+
+  spectral methods
+
   local vs global
+  
+  adaptivity
 
   rounding error
+
+  interpolation = func.\ representation, key to all else
 
   
 \end{frame}
@@ -200,7 +209,9 @@ Error $\max_x|\tilde f(x)-f(x)| = \bigO(h)$ as $h\to 0$
 
 \sg
 
-\gre{Recall asymptotic $\bigO(h)$: exists $C,h_0>0$ s.t.\ error $\le Ch$ for all $h<h_0$}
+\gre{Recall %asymptotic
+notation
+  ``$\bigO(h)$'': exists $C,h_0>0$ s.t.\ error $\le Ch$ for all $h<h_0$}
 
 \pause
 \vg
@@ -335,15 +346,21 @@ where $\ell_j(x)$ is $\ell$th Lagrange basis func:
   $p=N=32$, smooth (analytic) $f(x) = \frac{1}{1+9x^2}$ on $[-1,1]$ : \hfill\who{Runge 1901}
   
   \pig{2.2in}{figs/demopoly1}
-  \pause
   \hfill
+  \uncover<3->{
   \pig{2.2in}{figs/demopoly2}
+  }
   
-
-  \gb \red{warning}: unif.\ grid global interp.\ fails \hfill \com{only use locally in central region}  
+\pause
+  \gb warning: \red{unif.\ grid, global interp.\ fails} \; \com{$\rightarrow$ only use locally in central region}
 %  interval $[a,b]$
 
+  \pause
   \bmp{3in}
+  But exists good choice of nodes\ldots
+
+\hg
+  
   ``Chebychev'': \com{means non-unif.\ grid density $\sim \frac{1}{\sqrt{1-x^2}}$}
 
   \gb our first spectral method % basis of higher-dim $d>1$ methods\ldots
@@ -357,26 +374,104 @@ where $\ell_j(x)$ is $\ell$th Lagrange basis func:
 \emp
 \hfill
   \pig{1.6in}{figs/bern}
+
+% * give the rate rho = 1.39.. ?  x=1i/3; rho=abs(x + sqrt(x^2-1)), rho^-32
+  
+% * Lebesgue const?
+
   
   
 \end{noframe}
 
+\begin{noframe}\ft{Node choice and adaptivity}
 
+Recap poly approx.\ $f(x)$ on $[a,b]$: are good \& bad node sets $\{x_j\}_{j=1}^N$
+
+\sg
+
+  \lb{Question}: Do you get to {\em choose} the set of nodes at which $f$ known?
+
+\sg
+  
+  \gb No: data fitting applications \com{(or noisy variants: kriging, Gaussian processes, etc)}
+
+  \qquad \com{use local poly (central region only!), or something stable (splines)}
+  
+  \gb Yes: almost all else, interp., quadrature, PDE solvers
+  \hfill \com{so pick good nodes!}
+
+  \pause
+  \vg
+  
+\lb{Adaptivity idea}
+\hfill \com{global is \red{inefficient} if $f$ smooth in most places, structured in a few}
+
+\pause
+\sg
+
+ \only<3>{ \pig{3.2in}{figs/adap1} }
+ \pause
+ \pig{3.2in}{figs/adap2}
+ \hfill
+ \bmp{1.2in}
+% Given tolerance $\eps$ (eg $10^{-12}$)
+
+ automatically split
+ 
+(recursively) panels
+
+ until max err $\le\epsilon$
+
+\sg
+ 
+ \com{via tests for local error}
+ 
+ \emp
+
+\vg
+ 
+1D adaptive interpolator codes to try:
+
+ \gb {\tt github/dbstein/function\_generator}
+ \; \com{py+numba, fast} \hfill \who{Stein '19}
+
+ \gb {\tt chebfun} for MATLAB\;
+\com{big-$p$ Cheb.\ grids can exploit FFTs!}
+\hfill  \who{Trefethen et al.}
+
+\sg
+ 
+App.:  replace nasty expensive $f(x)$ by cheap one! \hfill \com{optimal ``look-up table''}
+
+
+\end{noframe}
+    
 % ---------------------------------------------------
 \begin{frame}\ft{Interpolation of periodic functions}
 
+  \com{Just did $f$ on intervals $[a,b]$. \;
+    Interpolation (\& integration, etc.) of {\em periodic} $f$ not same!}
+
+\hg
+
   Periodic: 
-  $f(x+2\pi)=f(x)$ for all $x$, \quad $f(x) = \sum_{n\in\mathbb{Z}} \hat f_n e^{inx}$
+  $f(x+2\pi)=f(x)$ for all $x$, \quad $f(x) = \sum_{n\in\mathbb{Z}} \hat f_k e^{ikx}$
   \hfill \com{Fourier series}
 
+\pause
+  
   instead of poly's, use \ora{truncated} series \;
-  $\tilde f(x) = \sum_{|n|<N/2} c_n e^{inx}$ \hfill\com{``trig.\ poly''}
+  $\tilde f(x) = \sum_{|k|<N/2} c_k e^{ikx}$ \hfill\com{``trig.\ poly''}
+
+  \sg
+
+  What's best you can do? if $\hat f_n$ decays rapidly, 
 
   
 
 How get $c_n$?  unif.\ grid now good! Use FFT of vals $f(2\pi j/N)$, $j=1,\dots,N$
 
-$c_n = 
+$c_n = $
   
 
 
