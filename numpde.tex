@@ -44,6 +44,7 @@
 \newcommand{\cbox}[1]{{\mbox{\scriptsize #1}}}
 %\newcommand{\who}[1]{{\tiny \textcolor{green}{(#1)}}}
 \newcommand{\who}[1]{{\scriptsize \textcolor{darkgreen}{(#1)}}}
+\newcommand{\whoc}[1]{{\scriptsize \textcolor{darkgreen}{#1}}} % use w/ \cite
 \newcommand{\com}[1]{{\scriptsize \textcolor{purple}{#1}}}      % comment
 \newcommand{\co}[1]{\mbox{\scriptsize \tt \textcolor{black} #1}}          % code
 \newcommand{\vg}{\vspace{2ex}}
@@ -58,6 +59,7 @@
 \newcommand{\ora}[1]{{\color{orange} #1}}
 \newcommand{\gre}[1]{{\color{green} #1}}
 \newcommand{\yel}[1]{{\color{yellow} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
 \newcommand{\sr}[1]{{\scriptsize #1}}
 \newcommand{\vt}[2]{\biggl[\begin{matrix}#1\\#2\end{matrix}\biggr]} % 2-col-vec
 \newcommand{\mt}[4]{\biggl[\begin{matrix}#1&#2\\#3&#4\end{matrix}\biggr]} %2x2
@@ -82,7 +84,9 @@
   \inst{2} Center for Computational Mathematics, Flatiron Institute,
   and Department of Mathematics, MIT
 }
+
 \usetheme{CCM}
+\setbeamertemplate{bibliography item}{\gb}
 
 \begin{document}
 
@@ -144,6 +148,7 @@ TODO
   pointers to dimensions $d>1$
 
   concepts: convergence order, spectral methods
+  local vs global
 
   rounding error
 
@@ -228,7 +233,7 @@ Message: a higher order method is only higher order if $f$ smooth enough
 
 \gb ``effort'' parameter $N$ \com{eg \# grid-points = $1/h^d$ where $h = $ grid spacing,  $d=$ dim}
 
-We just saw algebraic conv.\ error $=\bigO(N^{-k})$, for order $k=1,2$
+We just saw algebraic conv.\ error $=\bigO(N^{-p})$, for order $p=1,2$
 
 \pause
 
@@ -265,21 +270,117 @@ test your code w/ {\em known exact soln} to check error conv.
 \end{noframe}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Higher algebraic order interpolation}
+\begin{frame}\ft{Higher-order interpolation for smooth $f$: the local idea}
 
-  local Lagrange: arb. high ord, but formally discont.
+  For any target $x$, use only set of nearest $p$ nodes:
 
-  usually not a problem.
+  \bmp{2.9in}
 
-  barycentric
-
-pointer to: splines (if you {\em must} have higher-order continuity
+  Exists unique degree-$(p-1)$ poly, $\sum_{k=0}^{p-1} c_k x^k$
   
+  \quad which matches local data $(x_j,y_j)_{j=1}^p$
+  
+  \quad \com{generalizes piecewise lin. idea}
+
+  \quad \com{do \red{not} eval poly outside its central region!}
+  
+  \emp
+  \hfill
+  \pig{1.6in}{figs/flocpoly}
+  
+  \gb error $\bigO(h^{k})$, ie high order, but $\tilde f$ {\em not} continuous ($\tilde f \notin C$) \com{small jumps}
+
+  \quad \com{if must have cont, recommend splines, eg cubic $p=3$:
+    $\tilde f\in C^2$, meaning $\tilde f''$ is cont.}
+%   as target $x$ moves, ``jumps'' to another poly,
+  
+\pause
+
+\vg
+
+\lb{How to find the degree-$(k-1)$ poly?}
+
+1) Crafty: solve square lin sys for coeffs\quad 
+$\sum_{k<p} x_j^k c_k = y_j$ \hfill \com{ $j=1,\dots,p$}
+
+\qquad ie $V\mbf{c} = \y$ \qquad \com{$V$=''Vandermonde'' matrix, is ill-cond.\ but works}
+
+2) Traditional: barycentric formula
+$\displaystyle \tilde f(x) = \frac{\sum_{j=1}^p \frac{y_j}{x-x_j}w_j}{\sum_{j=1}^p \frac{1}{x-x_j}w_j}$
+\bmp{1in}
+
+\hfill \com{$w_j = \frac{1}{\prod_{i\neq j}(x_j-x_i)}$}
+
+\vg
+
+\hfill\whoc{\cite[Ch.~5]{ATAP}}
+\emp
+
+\sg
+
+Either way, $\tilde f(x) = \sum_{j=1}^p y_j \ell_j(x)$
+where $\ell_j(x)$ is $\ell$th Lagrange basis func:
+
+\qquad \pig{2in}{figs/lag}
+
+
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{First spectral method: periodic $f$}
+\begin{noframe}\ft{Global polynomial (Lagrange) interpolation?}
 
+  Want increase order $p$. Use {\em all} data, get single $\tilde f(x)$, so $p=N$?
+  \hfill\com{``global''}
+
+  $p=N=32$, smooth (analytic) $f(x) = \frac{1}{1+9x^2}$ on $[-1,1]$ : \hfill\who{Runge 1901}
+  
+  \pig{2.2in}{figs/demopoly1}
+  \pause
+  \hfill
+  \pig{2.2in}{figs/demopoly2}
+  
+
+  \gb \red{warning}: unif.\ grid global interp.\ fails \hfill \com{only use locally in central region}  
+%  interval $[a,b]$
+
+  \bmp{3in}
+  ``Chebychev'': \com{means non-unif.\ grid density $\sim \frac{1}{\sqrt{1-x^2}}$}
+
+  \gb our first spectral method % basis of higher-dim $d>1$ methods\ldots
+
+\quad   max err $=\bigO(\rho^{-N})$
+\hfill \com{exponential conv!}
+  
+\quad \com{  $\rho>1$ ``radius'' of largest
+  ellipse in which $f$ analytic}
+  
+\emp
+\hfill
+  \pig{1.6in}{figs/bern}
+  
+  
+\end{noframe}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{Interpolation of periodic functions}
+
+  Periodic: 
+  $f(x+2\pi)=f(x)$ for all $x$, \quad $f(x) = \sum_{n\in\mathbb{Z}} \hat f_n e^{inx}$
+  \hfill \com{Fourier series}
+
+  instead of poly's, use \ora{truncated} series \;
+  $\tilde f(x) = \sum_{|n|<N/2} c_n e^{inx}$ \hfill\com{``trig.\ poly''}
+
+  
+
+How get $c_n$?  unif.\ grid now good! Use FFT of vals $f(2\pi j/N)$, $j=1,\dots,N$
+
+$c_n = 
+  
+
+
+  
 exp conv if $f$ analytic in strip.
 
 
@@ -315,6 +416,7 @@ smooth = rapid Fourier series decay = rapid conv
   in $d>1$ getting $f(\x)$ from scattered data $\{\x_i\}$ is hard
 
   \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v low ord}
+% Bavarian pre-alps
   
   \emp
   \hfill
@@ -458,7 +560,7 @@ extrapolation
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{References}
 
 \bibliographystyle{amsalpha}  % abbrv
 \bibliography{numpde}
