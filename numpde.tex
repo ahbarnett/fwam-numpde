@@ -107,17 +107,18 @@
   \bi
 
 \item
-Interpolation: cheap but accurate look-up table for expensive $f(x)$
+  Interpolation:
 
-data fitting:
-given non-noisy data $f(x_i)$ at some $x_i$, model $f(x)$ at other points $x$?
+given exact data $f(x_i)$ at some $x_i$, model $f(x)$ at other points $x$?
+
+  cheap but accurate look-up table for expensive $f(x)$
 
 \quad\com{Contrast: fit noisy data = 
   learning (pdf for) params in model, via likelihood/prior}
 
 \item (Numerical) integration:
 
-  eg computing expectation values given a pdf 
+  eg computing expectation values given a pdf, or their quantum version
 
 \quad\com{Contrast: Monte Carlo (random, high-dim.) integration, Thurs am}
   
@@ -209,7 +210,7 @@ TODO
 
 Error $\max_x|\tilde f(x)-f(x)| = \bigO(h)$ as $h\to 0$
 
-\quad \com{holds if $f'$ bounded; can be nonsmooth but not crazy}
+\quad \com{holds if $f'$ bounded; ie $f$ can be nonsmooth but not crazy}
   
 \emp
 \hfill
@@ -250,7 +251,7 @@ Message: a higher order method is only higher order if $f$ smooth enough
 
   Should know or measure convergence rate of any method you use
 
-\gb ``effort'' parameter $N$ \com{eg \# grid-points = $1/h^d$ where $h = $ grid spacing,  $d=$ dim}
+\gb ``effort'' parameter $N$ \hfill \com{eg \# grid-points = $1/h^d$ where $h = $ grid spacing,  $d=$ dim}
 
 We just saw algebraic conv.\ error $=\bigO(N^{-p})$, for order $p=1,2$
 
@@ -393,7 +394,7 @@ where $\ell_j(x)$ is $\ell$th Lagrange basis func:
 
 \begin{noframe}\ft{Node choice and adaptivity}
 
-Recap poly approx.\ $f(x)$ on $[a,b]$: are good \& bad node sets $\{x_j\}_{j=1}^N$
+Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^N$
 
 \sg
 
@@ -401,18 +402,18 @@ Recap poly approx.\ $f(x)$ on $[a,b]$: are good \& bad node sets $\{x_j\}_{j=1}^
 
 \sg
   
-  \gb No: data fitting applications \com{(or noisy variants: kriging, Gaussian processes, etc)}
+  \gb data fitting applications: No \com{(or noisy variants: kriging, Gaussian processes, etc)}
 
-  \qquad \com{use local poly (central region only!), or something stable (eg splines)}
+  \qquad \com{use local poly (central region only!), or something stable (eg splines)} \whoc{\cite{GCbook}}
   
-  \gb Yes: almost all else, interp., quadrature, PDE solvers
+  \gb almost all else, interp., quadrature, PDE solvers: Yes
   \hfill \com{so pick good nodes!}
 
   \pause
   \vg
   
 \lb{Adaptivity idea}
-\hfill \com{global is \red{inefficient} if $f$ smooth in most places, structured in a few}
+\hfill \com{global is \red{inefficient} if $f$ smooth in most places, but not everywhere}
 
 \pause
 \sg
@@ -516,7 +517,7 @@ Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
 
 \quad a crude bound is $\displaystyle\max_{x\in[0,2\pi)} |\tilde f(x)-f(x)| \le 2\sum_{|k|\ge N/2} |\hat f_k|$
 
-\quad \com{ie error controlled by size of tail}
+\quad \com{ie error controlled by mass of tail}
 
 \end{frame}
 
@@ -530,9 +531,9 @@ Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
 
 \sg
   
-  \quad \com{Now \; $\hat f_k = \frac{1}{2\pi}\int_{0}^{2\pi} f(x) e^{-ikx}dx =
-  \frac{1}{2\pi}\int_{0}^{2\pi} f^{(p)}(x) \frac{e^{-ikx}}{(-ik)^p}dx$
-\quad integr.\ by parts $p$ times}
+  \quad \com{Now \;\; $\hat f_k = \frac{1}{2\pi}\int_{0}^{2\pi} f(x) e^{-ikx}dx =
+  \frac{1}{2\pi}\int_{0}^{2\pi} f^{(p)}(x) \frac{e^{-ikx}}{(ik)^p}dx$
+\hfill integr.\ by parts $p$ times}
 
 \sg
   
@@ -568,7 +569,7 @@ Smoothest case: ``band-limited'' $f$ with $\hat f_k=0$, $|k|>k_\tbox{max}$,
 
 \vg
 
-That's theory. In real life you always {\em measure} your conv.\ order/rate!
+That's theory. In real life you always \ora{measure} your conv.\ order/rate!
 
 \sg
 
@@ -584,7 +585,7 @@ Take-home: for $f$ smooth \& periodic, unif. grid global spectral acc.\
 \begin{noframe}\ft{Flavor of interpolation in higher dims $d>1$}
 
   \bmp{2.2in}
-  If you can choose the nodes:
+  If you {\em can} choose the nodes:
 
   \quad tensor product of 1D interp.
 
@@ -608,16 +609,16 @@ Take-home: for $f$ smooth \& periodic, unif. grid global spectral acc.\
 \pause
 
   \bmp{2.1in}
-If cannot choose the nodes:
+If {\em cannot} choose the nodes:
   
   interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
 
 \sg
   
-  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v.\ low ord}
+  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v.\ low ord,}
 % Bavarian pre-alps
 
-\com{are amusing jumps in node grids:}
+\quad \com{see amusing transition in interp.\ type:}
 
 
 \vg
@@ -643,6 +644,8 @@ Or if know $f$ smooth
 
   Task: eval.\ $\int_a^b f(x) dx$ accurately w/ least number of func.\ evals, $N$
 
+\sg
+  
 ``quadrature'': nodes $\{x_j\}$, weights $\{w_j\}$ s.t.
 $\int_a^b f(x) dx \approx \sum_{j=1}^N w_j f(x_j)$
 
@@ -650,38 +653,59 @@ $\int_a^b f(x) dx \approx \sum_{j=1}^N w_j f(x_j)$
   
 %Here, usually user gets to choose nodes $x_j$ \hfill\com{so pick best ones!}
 
-Idea: \; get interpolant $\tilde f$ from data $f(x_j)$, then {\em
-    integrate it exactly}
+Idea: \; get interpolant $\tilde f$ thru data $f(x_j)$, $\rightarrow$ {\em
+    integrate that exactly}
 
 \hfill  \com{``intepolatory quadrature''}
 
-\sg
+\vspace{-1ex}
 
-  Eg: piecewise linear gives composite trap rule  $\bigO(N^{-2})$
+\bmp{3.3in}
+Examples:
 
-  periodic spectral gives periodic trap rule $\bigO(c^{-N})$ if analytic
+\gb local piecewise linear $\rightarrow$ composite trapezoid rule
 
-  Gaussian idea: there is a well-chosen node set giving twice the rate vs interp.
+   \qquad \com{$w_j=h/2$ at ends, $h$ in middle. \; low-order: error $\bigO(N^{-2})$}
+   \emp
+   \hfill
+   \pig{0.9in}{figs/trap}
 
+\gb global poly $\rightarrow$ Newton--Coates
+
+\gb can do better: is ``Gaussian'' node set giving twice this rate!
+
+$x_j,w_j$ codes in scipy, matlab, etc
+
+Periodic case:
+
+  periodic spectral get periodic trap rule $\bigO(c^{-N})$ if analytic
+
+  all $w_j = \frac{2\pi}{N}$
+  
   PTR exact out to $N-1$, not merely $N/2$  (detail)
 
-  same in interval for poly degree
+  Adaptive panels each with Gaussian 
+
+
   
 \end{frame}
 
-% ---------------------------------------------------
-\begin{frame}\ft{}
-
-\end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Integration in dims $d>1$}
+\begin{frame}\ft{Advanced integration}
 
-  For $d$ up to a few, products of 1D nodes
+custom quadratures for singularities, eg $f(x) = \mbox{smooth}\cdot|x|^{1/2}$
+ \who{CCM: ask Manas Rachh}
+
+  change of variables (sinh-tanh transform to remove endpoint singularities)
+  
+  Higher dims: For $d$ up to a few, products of 1D nodes
   \com{exp.\ cost $N=n^d$}
   
   \com{can also do in other coord sys, eg sphere = $z \in [-1,1]$ tensor prod.\ with periodic $\phi\in[0,2\pi)$}
 
+    \com{adaptivity works: subdivide boxes}
+    
 \vg
   
   \lb{Higher $d$}
@@ -693,6 +717,11 @@ Idea: \; get interpolant $\tilde f$ from data $f(x_j)$, then {\em
   \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
 
   
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
 \end{frame}
 
 % ---------------------------------------------------
@@ -714,7 +743,7 @@ Finite differencing idea: $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^3)$
 
 trade-off rounding error
 
-
+  Rounding error  \cite[Ch.~5--6]{GCbook} coming in Lec II
 
 \end{frame}
 
@@ -735,12 +764,16 @@ Examples: periodic grid in $[0,2\pi)$, max error:
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{Topics not covered}
+\begin{frame}\ft{Recap concepts}
 
-extrapolation
 
-  Rounding error  \cite[Ch.~5--6]{GCbook} coming in Lec II
+  repeat list of concepts
+
+  See refs at end
   
+  
+%extrapolation: possible if know $f$ is smooth
+
 \end{frame}
 
 
@@ -949,7 +982,7 @@ Codes: ...
 \begin{frame}\ft{Spectral methods}
 
   % can refer back to D matrix, which was nodes-to-nodes.
-  % intro idea of Cheby basis (FFT of node values)
+  % intro idea of Cheby basis ($\approx$ FFT of node values)
   
 Limit of very few elements with very large p: exponential accuracy for smooth problems
 
@@ -980,14 +1013,18 @@ Codes: ...
 
 \bmp{3.5in}  
 Use knowledge of PDEs in constructing numerical solutions:
+
+A Green's func $G$ (fundamental soln) needed
+
+eg $\Delta G = \delta$
 \emp
 \hfill\pig{1.1in}{figs/bie}
-
-
 
 For linear PDEs dominated by boundary rather than bulk terms, compute solution by forming integral equation of the fundamental solution/Green's function. Reduced dimensionality. Improved conditioning. Low-rank interactions and fast methods. Reconstruct solution in the bulk.
 
 Examples: Stokes flow, Helmholtz, Maxwell, typically with homogeneous media
+
+heavily uses high-order integration methods
 
 \gb see Jun Wang's talk later today!
 
