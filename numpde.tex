@@ -149,13 +149,16 @@ TODO
 
   concepts:
 
-  convergence order
+  convergence order  \com{how does your accuracy improve vs number of
+    discretization points}
 
   spectral methods
 
-  local vs global
+  global \com{(one expansion formula for the whole domain)}
+
+  \quad vs local \com{(different expansions for $x$ in different regions)}
   
-  adaptivity
+  adaptivity \com{automatically placing degrees of freedom only where they need to be}
 
   rounding error
 
@@ -395,7 +398,7 @@ Recap poly approx.\ $f(x)$ on $[a,b]$: are good \& bad node sets $\{x_j\}_{j=1}^
   
   \gb No: data fitting applications \com{(or noisy variants: kriging, Gaussian processes, etc)}
 
-  \qquad \com{use local poly (central region only!), or something stable (splines)}
+  \qquad \com{use local poly (central region only!), or something stable (eg splines)}
   
   \gb Yes: almost all else, interp., quadrature, PDE solvers
   \hfill \com{so pick good nodes!}
@@ -447,10 +450,10 @@ App.:  replace nasty expensive $f(x)$ by cheap one! \hfill \com{optimal ``look-u
 \end{noframe}
     
 % ---------------------------------------------------
-\begin{frame}\ft{Interpolation of periodic functions}
+\begin{frame}\ft{Global interpolation of periodic functions I}
 
   \com{Just did $f$ on intervals $[a,b]$. \;
-    Interpolation (\& integration, etc.) of {\em periodic} $f$ not same!}
+    global interp.\ (\& integr., etc.) of smooth {\em periodic} $f$ differs!}
 
 \hg
 
@@ -460,69 +463,175 @@ App.:  replace nasty expensive $f(x)$ by cheap one! \hfill \com{optimal ``look-u
 
 \pause
   
-  instead of poly's, use \ora{truncated} series \;
+  Instead of poly's, use \ora{truncated} series \;
   $\tilde f(x) = \sum_{|k|<N/2} c_k e^{ikx}$ \hfill\com{``trig.\ poly''}
 
   \sg
 
-  What's best you can do? if $\hat f_n$ decays rapidly, 
+  \pause
+\bmp{2in}
+What's best you can do?
 
+\quad get $N$ coeffs right $c_k=\hat f_k$
+
+\sg
+
+\quad error $\sim$ size of tail $\{\hat f_k\}_{|k|\ge N/2}$
+\emp
+\hfill
+\pig{2.6in}{figs/fhat}
+
+%\vspace{-1ex}
+
+\pause
+
+How read off $c_k$ from {\em samples} of $f$ on a grid?
+
+\quad \com{uniform grid best (unlike for poly's!); non-uniform needs
+  linear solve, slow $\bigO(N^3)$ effort}
+
+%  How read off $\mbf{c} := \{c_k\}_{k=-N/2}^{N/2-1}$ from values $\y := \{f(x_j)\}_{j=1}^N$ at nodes?
+
+  Uniform grid $x_j=\frac{2\pi j}{N}$, \; set
+  $c_k  = \frac{1}{N}\sum_{j=1}^N e^{ikx_j} f(x_j)$ \hfill
+  \com{simply $\mbf{c}=FFT[\mbf{f}]$}
+
+\pause
   
+\quad easy to show $c_k = \dots + \hat f_{k-N} + \hat f_k + \hat f_{k+N} + \hat f_{k+2N} + \dots$
 
-How get $c_n$?  unif.\ grid now good! Use FFT of vals $f(2\pi j/N)$, $j=1,\dots,N$
+\hfill $ = \; \hat f_k$ \com{ desired }
+$+ \;\sum_{m\neq 0}\hat f_{k+mN}$ \;\com{ aliasing error, small if tail small}
+%  due to discrete sampling}
 
-$c_n = $
-  
+\sg
+\pause
 
+Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
 
-  
-exp conv if $f$ analytic in strip.
+\quad a crude bound is $\displaystyle\max_{x\in[0,2\pi)} |\tilde f(x)-f(x)| \le 2\sum_{|k|\ge N/2} |\hat f_k|$
 
-
-
-what if $f$ not as smooth as this?
-
-relapse to conv.\ order given by smoothness of $f$
-
-why? $\hat{f}_n$ decay
-
-
-
-Messages: spectral conv usually requires understanding $f$ off the real axis!
-
-smooth = rapid Fourier series decay = rapid conv
-
+\quad \com{ie error controlled by size of tail}
 
 \end{frame}
 
 
+  % ---------------------------------------------------
+\begin{noframe}\ft{Global interpolation of periodic functions II}
+
+  As grow grid $N$, how accurate is it?
+  \hfill 
+  \com{just derived err $\sim$ sum of $|\hat f_k|$ in tail $|k|\ge N/2$}
+
+\sg
+  
+  \quad \com{Now \; $\hat f_k = \frac{1}{2\pi}\int_{0}^{2\pi} f(x) e^{-ikx}dx =
+  \frac{1}{2\pi}\int_{0}^{2\pi} f^{(p)}(x) \frac{e^{-ikx}}{(-ik)^p}dx$
+\quad integr.\ by parts $p$ times}
+
+\sg
+  
+  So for a periodic $f\in C^p$, \; \com{recall means first $p$ derivs of $f$ bounded}
+  
+  %has $p$ bounded derivs
+  \qquad $\hat f_k=\bigO(k^{-p})$, tail sum $\bigO(N^{1-p})=\bigO(h^{p-1})$
+  \;\;\com{at least $(p-1)$th order acc.}% \;(could tweak)}
+
+\vg
+\pause
+
+Example of: \hfill \framebox{$f$ smoother \;$\leftrightarrow$\; faster $\hat f_k$ tail decay \;$\leftrightarrow$\; faster convergence}
+
+\pause
+
+\sg
+
+Even smoother case: $f$ analytic,\quad
+\com{so $f(x)$ analytic in some complex strip $|\im x|\le \alpha$}
+
+\quad then $\hat f_k = \bigO(e^{-\alpha|k|})$, exponential conv in $N$
+\hfill \com{(fun proof: shift the contour)} 
+
+\quad \com{as with Bernstein ellipse, to get exp.\ conv.\ {\em rate} need understand $f$ {\em off its real axis} (wild!)}
+
+\sg
+\pause
+
+Smoothest case: ``band-limited'' $f$ with $\hat f_k=0$, $|k|>k_\tbox{max}$,
+
+\quad then interpolant {\em exact} once $N>2k_\tbox{max}$
+
+\vg
+
+That's theory. In real life you always {\em measure} your conv.\ order/rate!
+
+\sg
+
+Take-home: for $f$ smooth \& periodic, unif. grid global spectral acc.\
+
+\gb use FFTs, cost $\bigO(N\log N)$, to go between $f(x_j)$ \com{grid} \& $\hat f_k$ \com{Fourier coeffs}
+
+\end{noframe}
+
+
 
 % ---------------------------------------------------
-\begin{frame}\ft{Interpolation in $d>1$}
+\begin{noframe}\ft{Flavor of interpolation in higher dims $d>1$}
 
+  \bmp{2.2in}
+  If you can choose the nodes:
 
-  can you choose the points?
+  \quad products of 1D interpolants
 
-  data fit: often no
-  
-  PDE solve: usually yes - product grids, piecewise (FEM), etc
-  
-    \bmp{2.1in}
-  in $d>1$ getting $f(\x)$ from scattered data $\{\x_i\}$ is hard
+  \quad either global
 
-  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v low ord}
-% Bavarian pre-alps
+  \quad or adaptively refined boxes %(quad-tree)
   
   \emp
-  \hfill
-  \pig{2.3in}{figs/gterrain_lab}
+  \pig{1in}{figs/2dugrid_lab}
+  \quad
+  \pig{0.9in}{figs/2dadaptgrid}
+    
+  \hspace{2.2in}
+  \com{periodic, global}
+  \hspace{.3in}
+  \com{adaptive $p=6\times 6$ Cheby}
 
-  unless you know $f$ smooth, eg fit local multivariate polynomial
+%\hfill\who{Babb et al '18}  but this is generic
 
-  kriging
+\vg
+\pause
 
+  \bmp{2.1in}
+If cannot choose the nodes:
   
- \end{frame}
+  interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
+
+\sg
+  
+  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v.\ low ord}
+% Bavarian pre-alps
+
+\com{are amusing jumps in node grids:}
+
+
+\vg
+
+Or if know $f$ smooth
+
+\quad \com{fit local multivariate polynomial}
+
+  If $f$ noisy and smooth, many methods
+
+  kriging, kernels, ***
+
+
+
+  \emp
+  \hfill
+  \pig{2.2in}{figs/gterrain_lab}
+  
+ \end{noframe}
 
 % ---------------------------------------------------
 \begin{frame}\ft{Numerical integration}
@@ -559,7 +668,12 @@ Usually the user gets to choose the nodes $x_j$
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Differentiation}
+
+As w/ integration: once have interpolant, differentiate it exactly
+
+\pig{3in}{figs/trefdiff}
+
 
 \end{frame}
 
