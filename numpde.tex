@@ -123,7 +123,7 @@ given non-noisy data $f(x_i)$ at some $x_i$, model $f(x)$ at other points $x$?
   
 \item Differentiation:
 
-  get gradient $\nabla f$ in order to optimize or
+  \com{get gradient $\nabla f$: for optimization, or get matrix which approx.\ an ODE/PDE}
   
 \item Spectral (often Fourier) methods:
 
@@ -147,22 +147,23 @@ TODO
 
   pointers to dimensions $d>1$
 
-  concepts:
+  Concepts:
 
   convergence order  \com{how does your accuracy improve vs number of
     discretization points}
 
-  spectral methods
-
   global \com{(one expansion formula for the whole domain)}
 
   \quad vs local \com{(different expansions for $x$ in different regions)}
+
+  spectral method \com{global, often use FFT, converge faster than any fixed order}
+%    $N^{-p}$ for any $p$}
   
   adaptivity \com{automatically placing degrees of freedom only where they need to be}
 
   rounding error
 
-  interpolation = func.\ representation, key to all else
+  interpolation = func.\ representation, is key to all else
 
   
 \end{frame}
@@ -581,7 +582,7 @@ Take-home: for $f$ smooth \& periodic, unif. grid global spectral acc.\
   \bmp{2.2in}
   If you can choose the nodes:
 
-  \quad products of 1D interpolants
+  \quad tensor product of 1D interp.
 
   \quad either global
 
@@ -634,21 +635,26 @@ Or if know $f$ smooth
  \end{noframe}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Numerical integration}
+\begin{frame}\ft{Numerical integration (back to $d=1$)}
 
-Usually the user gets to choose the nodes $x_j$
-  
-  Once have interpolant $\tilde f$ from data $f(x_j)$, can {\em
+Here, usually user gets to choose the nodes $x_j$ \hfill\com{so pick best ones!}
+
+Idea: \; get interpolant $\tilde f$ from data $f(x_j)$, then {\em
     integrate it exactly}
 
-  \com{``intepolatory quadrature''}
+\hfill  \com{``intepolatory quadrature''}
+
+\sg
 
   Eg: piecewise linear gives composite trap rule  $\bigO(N^{-2})$
 
   periodic spectral gives periodic trap rule $\bigO(c^{-N})$ if analytic
 
-  
-  
+  Gaussian idea: there is a well-chosen node set giving twice the rate vs interp.
+
+  PTR exact out to $N-1$, not merely $N/2$  (detail)
+
+  same in interval for poly degree
   
 \end{frame}
 
@@ -658,8 +664,24 @@ Usually the user gets to choose the nodes $x_j$
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Integration in dims $d>1$}
 
+  For $d$ up to a few, products of 1D nodes
+  \com{exp.\ cost $N=n^d$}
+  
+  \com{can also do in other coord sys, eg sphere = $z \in [-1,1]$ tensor prod.\ with periodic $\phi\in[0,2\pi)$}
+
+\vg
+  
+  \lb{Higher $d$}
+
+  Monte Carlo methods: sum $N$ values of $f(\x_j)$ for $\x_j$ random points
+  
+  \quad error $= \bigO(N^{-1/2})$  \com{1/2-order acc, indep of dim $d$}
+  
+  \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
+
+  
 \end{frame}
 
 % ---------------------------------------------------
@@ -668,9 +690,13 @@ Usually the user gets to choose the nodes $x_j$
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Differentiation}
+\begin{frame}\ft{Differentiation in $d=1$}
 
 As w/ integration: once have interpolant, differentiate it exactly
+
+$D$ is $p\times p$ matrix acting on func.\ values $\{f(x_j)\}$ to give $\{f'(x_j)\}$
+
+Examples: periodic grid in $[0,2\pi)$, max error:
 
 \pig{3in}{figs/trefdiff}
 
@@ -679,13 +705,11 @@ As w/ integration: once have interpolant, differentiate it exactly
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
-TO DO
-
+\begin{frame}\ft{Topics not covered}
 
 extrapolation
 
-  Rounding error  \cite[Ch.~5--6]{GCbook}
+  Rounding error  \cite[Ch.~5--6]{GCbook} coming in Lec II
   
 \end{frame}
 
@@ -724,8 +748,21 @@ extrapolation
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Finite difference idea}
 
+  set up linear system for 1D ODE $u'' = g$ w/ some BCs
+  
+  Uniform 1D grid in $[0,1]$  \quad $h=1/N$
+
+  $u''(x) = \frac{u(x-h)-2u(x)+u(x+h)}{h^2} + \bigO(h^4)$  \com{ via Taylor thm}
+
+show results as $h\to 0$ for known $u$
+
+trade-off rounding error
+
+Alex can do this, or move to diff lec I and do $f'$ ?
+  
+  
 \end{frame}
 
 % ---------------------------------------------------
