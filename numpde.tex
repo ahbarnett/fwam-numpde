@@ -771,32 +771,166 @@ Alex can do this, or move to diff lec I and do $f'$ ?
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{IVPs to BVPs}
+
+Motivate focus on BVPs by mentioning:
+
+\gb Most people familiar with method of lines
+
+\gb Equivalent ``propagator'' approach: discretize time, then solve BVP
+
+\gb Most timesteppers are FD methods (some examples)
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Finite difference methods}
+
+Basic viewpoint:
+
+\gb Construct Taylor-series approximation to value at neighboring points
+
+\gb For N points, expand to (N-1) derivatives (error $\bigO(h^N)$)
+
+\gb Eliminate system to get approximation to $d$-th derivative ($d < N$) (error $\bigO(h^{N-d})$)
+
+\sg
+
+Alternate viewpoint:
+
+\gb Differentiate the unique interpolating polynomial of deg N-1
+
+Illustrate with centered forward 1st-order scheme, centered 2nd-order scheme (get extra degree for free).
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Timestepping with finite differente methods}
+
+Consider temporal ODE $u'(t) = f(u(t))$
+
+Explicit methods: simple, just require evaluating $f(u_n)$.
+
+\gb E.g. Forward Euler: use 1st-order forward difference rule
+
+\com{Unstable for large timesteps}
+
+\bea
+u'(t) = - \lambda u(t) \quad \lambda > 0 \\
+\frac{u_{n+1} - u_n}{k} = - \lambda u_n \\
+u_{n+1} = (1 - k \lambda) u_n \\
+\boxed{k \lambda < 2}
+\eea
+
+Implicit methods: stable, but require solving $f(u^{n+1}) = ...$
+
+\gb Backward Euler: use 1st-order backward difference rule
+
+\com{Stability, but potentially at high cost}
+
+\bea
+u'(t) = - \lambda u(t) \quad \lambda > 0 \\
+\frac{u_{n+1} - u_n}{k} = - \lambda u_{n+1} \\
+u_{n+1} = (1 + k \lambda)^{-1} u_n \\
+\eea
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Advanced finite difference techniques}
+
+\gb Selecting stencils term by term (e.g. upwinding)
+
+\gb Adaptive stencil selection (e.g. WENO)
+
+\vspace{2em}
+
+Resources: ...
+
+Codes: ...
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Finite element methods}
+
+Partition domain into elements, represent unknown within each element using basis functions (usually polynomials)
+
+Convert equations to weak form
+
+\gb Give example
+
+\gb Weak form advantages: lowers order, works if lower derivs are integrable (good for discontinuities, hyperbolic), can use tent functions
+
+Replace weak form with Galerkin/weighted-residual form to get algebraic system
+
+Traditional FEM methods use tent functions, produce continuous solutions.  Fluxes at cell boundaries can be computed from internal representation, but can be discontinuous (non conservative).
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{}
+\begin{frame}\ft{Finite volume methods}
+
+Case of FEM taking functions to be piecewise constant inside elements
+
+Resulting system is exactly conservative (good for hyperbolic), but requires Riemann solve
+
+\gb Order increased by using neihgbors to reconstruct higher order internal representations or fluxes (slope/flux reconstruction)
+
+\gb Reconstruction is nonlinear to control oscillations around discontinuities (TVD, ENO/WENO).
+
+Very common in CFD, CCA
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Advanced finite element methods}
+
+\gb Discontinuous Galerkin: allow discontinuities, need Riemann solvers again
+
+\gb Spectral elements: move towards large p for better internal representations
+
+Resources: ...
+
+Codes: ...
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Spectral methods}
+
+Limit of very few elements with very large p: exponential accuracy for smooth problems
+
+Traditional techniques: Fourier spectral methods.
+
+\gb Fast due to FFT: optimal complexity with exponential accuracy
+
+\gb Limited to simple geometries / equations with symmetries
+
+Polynomial spectral methods
+
+\gb More flexible in terms of equations
+
+\gb Still limited to simple geometries: cubes, spheres, cylinders, etc.
+
+\gb Still a weak method, but don't integrate by parts. Apply Galerkin directly.
+
+Modern research: sparse methods for arbitrary equations.
+
+Resources: ...
+
+Codes: ...
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Boundary integral methods}
+
+Use knowledge of PDEs in constructing numerical solutions:
+
+For linear PDEs dominated by boundary rather than bulk terms, compute solution by forming integral equation of the fundamental solution/Green's function. Reduced dimensionality. Improved conditioning. Low-rank interactions and fast methods. Reconstruct solution in the bulk.
+
+Examples: Stokes flow, Helmholtz, Maxwell, typically with homogeneous media
 
 \end{frame}
 
