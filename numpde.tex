@@ -139,7 +139,7 @@ Integr/diff crucial for numerical ODEs and PDEs \com{topic of LECTURE II}
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{Goals LECTURE I}
+\begin{frame}\ft{Goals for LECTURE I}
 
 TODO
   
@@ -147,6 +147,8 @@ TODO
 
   pointers to dimensions $d>1$
 
+\sg
+  
   Concepts:
 
   convergence order  \com{how does your accuracy improve vs number of
@@ -161,8 +163,10 @@ TODO
   
   adaptivity \com{automatically placing degrees of freedom only where they need to be}
 
-  rounding error
+  rounding error \& catastrophic cancellation
 
+\vg
+  
   interpolation = func.\ representation, is key to all else
 
   
@@ -805,7 +809,7 @@ Illustrate with centered forward 1st-order scheme, centered 2nd-order scheme (ge
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Timestepping with finite differente methods}
+\begin{frame}\ft{Timestepping with finite difference methods}
 
 Consider temporal ODE $u'(t) = f(u(t))$
 
@@ -854,7 +858,11 @@ Codes: ...
 % ---------------------------------------------------
 \begin{frame}\ft{Finite element methods}
 
+  \bmp{3.5in}
 Partition domain into elements, represent unknown within each element using basis functions (usually polynomials)
+\emp
+\hfill
+\pig{1.1in}{figs/fem}
 
 Convert equations to weak form
 
@@ -926,11 +934,18 @@ Codes: ...
 % ---------------------------------------------------
 \begin{frame}\ft{Boundary integral methods}
 
+\bmp{3.5in}  
 Use knowledge of PDEs in constructing numerical solutions:
+\emp
+\hfill\pig{1.1in}{figs/bie}
+
+
 
 For linear PDEs dominated by boundary rather than bulk terms, compute solution by forming integral equation of the fundamental solution/Green's function. Reduced dimensionality. Improved conditioning. Low-rank interactions and fast methods. Reconstruct solution in the bulk.
 
 Examples: Stokes flow, Helmholtz, Maxwell, typically with homogeneous media
+
+\gb see Jun Wang's talk later today!
 
 \end{frame}
 
