@@ -641,7 +641,14 @@ Or if know $f$ smooth
 % ---------------------------------------------------
 \begin{frame}\ft{Numerical integration (back to $d=1$)}
 
-Here, usually user gets to choose the nodes $x_j$ \hfill\com{so pick best ones!}
+  Task: eval.\ $\int_a^b f(x) dx$ accurately w/ least number of func.\ evals, $N$
+
+``quadrature'': nodes $\{x_j\}$, weights $\{w_j\}$ s.t.
+$\int_a^b f(x) dx \approx \sum_{j=1}^N w_j f(x_j)$
+
+\sg
+  
+%Here, usually user gets to choose nodes $x_j$ \hfill\com{so pick best ones!}
 
 Idea: \; get interpolant $\tilde f$ from data $f(x_j)$, then {\em
     integrate it exactly}
@@ -694,6 +701,25 @@ Idea: \; get interpolant $\tilde f$ from data $f(x_j)$, then {\em
 \end{frame}
 
 % ---------------------------------------------------
+\begin{frame}\ft{Numerical differentiation}
+
+Goal: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
+
+\qquad \com{obviously again we have to assume $f$ smooth}
+
+Finite differencing idea: $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^3)$
+\com{Taylor's thm}
+
+*** demo of error vs $h$.
+
+trade-off rounding error
+
+
+
+\end{frame}
+
+
+% ---------------------------------------------------
 \begin{frame}\ft{Differentiation in $d=1$}
 
 As w/ integration: once have interpolant, differentiate it exactly
@@ -724,55 +750,66 @@ extrapolation
 % ---------------------------------------------------
 \begin{frame}\ft{LECTURE II: numerical differential equations}
 
-  For now we start with ``elliptic'': time-independent problems
+GOALS
 
-  Motivations
-  
-  eg steady-state (equilibrium) diffusion of a chemical
+***
 
-  eg what electric potential caused by bunch of charges surrounded by H$_2$O ?
-  (protein electrostatics)
-
-  Find $u$ solving $\Delta u = f$,  \com{$f = $ volume source term}
-
-  \hfill \com{$\Delta$ means Laplacian $\partial^2/\partial x^2 + \partial^2/\partial y^2 + \dots$. \quad $\Delta u$ is curvature of $u$}
-
-  plus some BCs on $u$
-
-  eg viscous fluid flow: $\mbf{u}$ is velocity field, sat Stokes eqns
-  
-  eg what is ground state of quantum system, solving $\Delta u = Eu$
-
-
-  
-  Mike will in next talk overview this and 2 other flavors of PDE
-
-  
-  
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Finite difference idea}
+\begin{noframe}\ft{Reminder of types and applications of diff.\ eq.}
 
-  set up linear system for 1D ODE $u'' = g$ w/ some BCs
+% feel free to scratch/edit, but some overview is needed
   
-  Uniform 1D grid in $[0,1]$  \quad $h=1/N$
+\gb  ODEs: \; \com{eg pendulum} $u''(t) + \sin(u(t)) = 0$
+ \hfill \com{task: solve $u(t)$ efficiently \& acc.}
 
-  $u''(x) = \frac{u(x-h)-2u(x)+u(x+h)}{h^2} + \bigO(h^4)$  \com{ via Taylor thm}
+  \qquad needs initial conditions to kick it off \quad \com{eg $u(0)=1$, $u'(0)=0$}
 
-show results as $h\to 0$ for known $u$
-
-trade-off rounding error
-
-Alex can do this, or move to diff lec I and do $f'$ ?
+ \qquad \com{eg kinetics of system of well-mixed chemicals, $\mbf{u}$ is vector}
   
+\sg
+
+\gb time-independent PDEs, usually ``elliptic'' \hfill \com{Mike will explain}
+
+\qquad \com{eg Poisson eqn} \; $\Delta u = g$,
+\hfill \com{ $u(\x)=$ %equilibrium
+  chemical concentration or electric potential}
+
+%  eg what electric potential caused by bunch of charges surrounded by H$_2$O ?
+%  (protein electrostatics)
+
+  \qquad \com{$\x$ means $(x,y,\dots)$, \quad $\Delta u$ means Laplacian $\partial^2 u/\partial x^2 + \partial^2 u/\partial y^2 + \dots = $ curvature of $u$}
+
+
+  \hfill \com{$g(\x) = $ volume source of chemical or charge}
+
   
-\end{frame}
+\qquad needs boundary conditions (BCs) on $u$, or decay at infinity
 
-% ---------------------------------------------------
-\begin{frame}\ft{}
+\qquad \com{ eg viscous fluid flow: $\mbf{u}$ is velocity field, Stokes eqns}
+  
+\qquad \com{ eg what is ground state of quantum system, solving t-indep.\ Schr\"odinger\; $\Delta u = Eu$ ?}
 
-\end{frame}
+\sg
+
+\gb time-dependent (evolution) PDEs \quad $u(\x,t)$ varies in space and time
+
+\qquad \com{eg heat/diffusion equation} \; $\partial u /\partial t + \Delta u= g$
+\hfill \com{$g(\x,t)=$ source}
+
+\qquad needs initial and BCs \;\com{BCs may vary in time\ldots}
+
+\sg
+
+  [Mike will in next talk overview the three flavors of PDE]
+
+  \sg
+
+BCs: simple (eg periodic cube) vs complicated ($u=0$ on a nasty surface)
+
+  
+\end{noframe}
 
 % ---------------------------------------------------
 \begin{frame}\ft{IVPs to BVPs}
@@ -843,6 +880,10 @@ u_{n+1} = (1 + k \lambda)^{-1} u_n \\
 % ---------------------------------------------------
 \begin{frame}\ft{Advanced finite difference techniques}
 
+  % do you go to 2D & 3D here? or earlier?
+
+\hfill\pig{0.8in}{figs/fd}  
+
 \gb Selecting stencils term by term (e.g. upwinding)
 
 \gb Adaptive stencil selection (e.g. WENO)
@@ -907,6 +948,9 @@ Codes: ...
 % ---------------------------------------------------
 \begin{frame}\ft{Spectral methods}
 
+  % can refer back to D matrix, which was nodes-to-nodes.
+  % intro idea of Cheby basis (FFT of node values)
+  
 Limit of very few elements with very large p: exponential accuracy for smooth problems
 
 Traditional techniques: Fourier spectral methods.
