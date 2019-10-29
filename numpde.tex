@@ -56,7 +56,7 @@
 \newcommand{\emp}{\end{minipage}}
 \newcommand{\pig}[2]{\bmp{#1}\includegraphics[width=#1]{#2}\emp} % mp-fig, nogap
 \newcommand{\pigm}[3]{\bmp{#1}\href{#3}{\includegraphics[width=#1]{#2}}\emp} % w/ movie
-\newcommand{\ora}[1]{{\color{orange} #1}}
+\newcommand{\ora}[1]{{\color{CCMorange} #1}}
 \newcommand{\gre}[1]{{\color{darkgreen} #1}}
 \newcommand{\yel}[1]{{\color{yellow} #1}}
 \newcommand{\red}[1]{{\color{red} #1}}
@@ -78,7 +78,7 @@
 \DeclareMathOperator{\re}{Re}
 
 \title{FWAM Session B: Function Approximation and Differential Equations}
-\date{Wed, 10/30/19}
+\date{Wednesday afternoon, 10/30/19}
 \author{\textbf{Alex Barnett}\inst{1} and \textbf{Keaton Burns}\inst{2}}
 \institute{\inst{1} Center for Computational Mathematics, Flatiron Institute\\
   \inst{2} Center for Computational Astrophysics, Flatiron Institute,
@@ -102,83 +102,71 @@
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{LECTURE 1: interpolation, integration, spectral methods}
+\begin{frame}\ft{}
 
+\vspace{10ex}
+
+\bc
+\ora{  LECTURE 1
+\vg
+
+interpolation, integration, differentiation, spectral methods
+}
+\ec
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Goals and plan}
   
-  \lb{Motivations}
+  \lb{Overall}: graph of $f(x)$ needs $\infty$ number of points to describe, so how
 
-  exact func.\ $f(x)$ described by $\infty$ number of points
-
-  how handle approximately (but accurately) in computer, using least cost (bytes)? 
+  handle $f$ to user-specified accuracy in computer w/ least cost? \com{(bytes/flops)}
+  
+\pause
+  
   \bi
 
 \item
-  Interpolation:
+  Interpolation:  also key to numerical ODE/PDEs\ldots
 
-given exact data $f(x_i)$ at some $x_i$, model $f(x)$ at other points $x$?
+task: given exact $f(x_j)$ at some $x_j$, model $f(x)$ at other points $x$?
 
-  cheap but accurate look-up table for expensive $f(x)$
+\quad\com{App: cheap but accurate ``look-up table'' for possibly expensive func.}
 
 \quad\com{Contrast: fit noisy data = 
   learning (pdf for) params in model, via likelihood/prior}
 
-\item (Numerical) integration:
+\item Numerical integration:
 
-  eg computing expectation values given a pdf, or their quantum version
+  \quad\com{App: computing expectation values, given a pdf or quantum wavefunc.}
 
-\quad\com{Contrast: Monte Carlo (random, high-dim.) integration, Thurs am}
+  \quad\com{App: integral equation methods for PDEs \;\who{Jun Wang's talk}}
   
-\item Differentiation:
+\item Numerical differentiation:
 
-  \com{get gradient $\nabla f$: for optimization, or get matrix which approx.\ an ODE/PDE}
-  
-\item Spectral (often Fourier) methods:
+  \quad\com{App: build a matrix (linear system) to approximate an ODE/PDE\; \who{Lecture II}}
 
-If $f(x)$ is smooth, handle very accurately without much extra cost
+  \quad\com{App: get gradient $\nabla f$, eg for optimization \;
+    \who{cf adjoint methods}
+  }
+\ei  
 
-\ei
+\pause
+\sg
 
-Deterministic (non-random) methods.
+\lb{Key concepts:} %key throughout numerical analysis}:
 
-Integr/diff crucial for numerical ODEs and PDEs \com{topic of LECTURE II}
+convergence rate, degree of smoothness of $f$, global vs local,
 
-\end{frame}
-
-
-% ---------------------------------------------------
-\begin{frame}\ft{Goals for LECTURE I}
-
-TODO
-  
-  teach range of practical methods focusing on 1D
-
-  pointers to dimensions $d>1$
+spectral methods, adaptivity, rounding error \& catastrophic cancellation
 
 \sg
-  
-  Concepts:
+\pause
 
-  convergence order \quad  \com{how does accuracy improve w/ number of
-    discretization points?}
+\lb{Plus:} good 1D tools, pointers to codes, higher dim methods, opinions!
 
-  global \qquad \com{(one expansion formula for the whole domain)}
-
-  \quad vs local \quad \com{(different expansions for $x$ in different regions)}
-
-  spectral method \quad \com{global, often use FFT, converge very fast}
-    %er than any fixed order}
-%    $N^{-p}$ for any $p$}
-  
-  adaptivity \quad \com{automatically placing degrees of freedom only where they need to be}
-
-  rounding error \& catastrophic cancellation \quad \com{how not shoot self in the foot}
-
-\vg
-  
-  interpolation = func.\ representation, is key to all else
-
-  
-\end{frame}
+\end{noframe}
 
 
 % ---------------------------------------------------
@@ -408,13 +396,13 @@ Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^
 
 \sg
 
-  \lb{Question}: Do you get to {\em choose} the set of nodes at which $f$ known?
+  \lb{Question}: Do {\em you} get to choose the set of nodes at which $f$ known?
 
 \sg
   
   \gb data fitting applications: No \com{(or noisy variants: kriging, Gaussian processes, etc)}
 
-  \qquad \com{use local poly (central region only!), or something stable (eg splines)} \whoc{\cite{GCbook}}
+  \qquad \com{use local poly (central region only!), or something stable (eg splines)} \hfill\whoc{\cite{GCbook}}
   
   \gb almost all else, interp., quadrature, PDE solvers: Yes
   \hfill \com{so pick good nodes!}
@@ -443,7 +431,7 @@ Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^
 
 \sg
  
- \com{via tests for local error}
+ \com{via test for local error}
  
  \emp
 
@@ -451,11 +439,11 @@ Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^
  
 1D adaptive interpolator codes to try:
 
- \gb {\tt github/dbstein/function\_generator}
+ \gb {\tt github:dbstein/function\_generator}
  \; \com{py+numba, fast} \hfill \who{Stein '19}
 
- \gb {\tt chebfun} for MATLAB\;
-\com{big-$p$ Cheb.\ grids can exploit FFTs!}
+ \gb {\tt chebfun} for MATLAB
+%\; \com{big-$p$ Cheb.\ grids can exploit FFTs!}
 \hfill  \who{Trefethen et al.}
 
 \sg
@@ -647,7 +635,12 @@ Or if know $f$ smooth
 
   kriging, kernels, ***
 
+  sparse grids
+  
+  neural networks
 
+  tensor networks
+  
 
   \emp
   \hfill
@@ -656,7 +649,7 @@ Or if know $f$ smooth
  \end{noframe}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Numerical integration (back to $d=1$)}
+\begin{noframe}\ft{Numerical integration (back to $d=1$)}
 
   Task: eval.\ $\int_a^b f(x) dx$ accurately w/ least number of func.\ evals, $N$
 
@@ -722,7 +715,7 @@ Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\
 \hspace{1in} {\tt \small ans = 1.3e-15}
 
   
-\end{frame}
+\end{noframe}
 
 
 % ---------------------------------------------------
@@ -730,10 +723,10 @@ Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\
 
   \gb custom quadr.\ for singularity \; \com{eg $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$}
 
-  \qquad or for a new set of funcs.\ \com{``gen. Gaussian quad.''}
+  \qquad or for arb.\ set of funcs.\ \com{``generalized Gaussian quad.''}
 \hfill \who{CCM: Manas Rachh}
 
-\gb high-order end-corrections to trap.\ rule \hfill \who{Alpert '99}
+\gb high-order end-corrections to uniform trap.\ rule \hfill \who{Alpert '99}
  
 \vdots
 
@@ -811,7 +804,7 @@ Let's see how that goes\ldots
 
 \sg
 
-\com{Reading: floating point, backward stability}\; \whoc{\cite[Ch.~5--6]{GCbook} \cite[Ch.~12--15]{nla}}
+\com{Essential reading: floating point, backward stability}\; \whoc{\cite[Ch.~5--6]{GCbook} \cite[Ch.~12--15]{nla}}
 
 \end{noframe}
 
@@ -847,7 +840,7 @@ shown: max error in $f'$
 \pig{3in}{figs/trefchebdiff_lab.png}
 
 
-\gb for $N$ large, dense $D$ is never formed, instead applied via FFT
+\gb for $N$ large, the dense $D$ is never formed, merely applied via FFT
 
 \qquad \com{spectral solvers for ODE/PDEs. codes: {\tt chebfun}, {\tt PseudoPack}, {\tt dedalus}... Lecture II}
 
@@ -867,31 +860,38 @@ Both follow from building a good (fast-converging) interpolant
 
 \sg
 
-For $f$ smooth in 1D, can \& should easily get {\em many} (10+) digits accuracy
+For $f$ smooth in 1D, can \& should easily get many (10+) digits accuracy
 
-\vspace{4ex}
+\vspace{3ex}
 
 \lb{Concepts:}
 
 \sg
 
-  convergence order/rate
+convergence order/rate \quad  \com{how much effort will you have to spend
+  to get more digits?}
 
-  smoothness
+smoothness \hfill \com{smooth $\Leftrightarrow$ fast convergence; \; nonsmooth needs custom methods}
 
-  spectral method
+  global \hspace{1in} \com{(one interpolation formula/basis for the whole domain)}
+
+  \quad vs local \hspace{.8in} \com{(distinct formulae for $x$ in different regions)}
+
+  spectral method \hspace{.3in} \com{global, can exploit FFT, converge very fast}
+    %er than any fixed order}
+%    $N^{-p}$ for any $p$}
   
-  global vs local interpolant
+  adaptivity \hfill \com{automatically splitting boxes to put nodes only where they need to be}
+
+  rounding error \& catastrophic cancellation \quad \com{how not shoot self in the foot}
+
+  tensor products for 2D, 3D \quad \com{for higher dims: randomized/NN/TN}\;\who{Sessions C,D,E}
   
-  adaptivity
+%for $d\gg 1$ high dims, see other sessions: random \com{Monte Carlo} and neural networks.
 
-  rounding error \& catastrophic cancellation
+  \vspace{3ex}
 
-  tensor products for 2D \& 3D; higher gets harder
-  
-\vspace{4ex}
-
-See references at end of slide, and come ask us stuff!
+See recommended books at end, and come discuss stuff!
 
 \end{frame}
 
@@ -902,7 +902,7 @@ See references at end of slide, and come ask us stuff!
 % ---------------------------------------------------
 \begin{frame}\ft{LECTURE II: numerical differential equations}
 
-GOALS
+GOALS (maybe not needed)
 
 ***
 
