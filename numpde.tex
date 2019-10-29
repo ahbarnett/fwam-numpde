@@ -265,7 +265,7 @@ We just saw algebraic conv.\ error $=\bigO(N^{-p})$, for order $p=1,2$
 
 \pause
 
-Is only one graph in numerical analysis: \framebox{``relative error vs effort''}
+There's only one graph in numerical analysis: \framebox{``relative error vs effort''}
 
 \sg
 
@@ -281,7 +281,7 @@ Note how spectral gets many digits for small $N$
 \hfill \com{crucial for eg 3D prob.}
 %Let's say a 3D prob.\ must have $N\le 300$: here spectral is 
 
-\com{``spectral'' = ``superalgebraic'', beats $\bigO(N^{-m})$ for any $m$}
+\com{``spectral'' = ``superalgebraic'', beats $\bigO(N^{-p})$ for any $p$}
 
 \gb how many digits to you want? \com{for 1-digit (10\% error), low order ok, easier to code}
 
@@ -291,7 +291,7 @@ Note how spectral gets many digits for small $N$
 test your code w/ {\em known exact soln} to check error conv.
 {\tt <\textbackslash rant>} }
 
-\quad \com{How big is prefactor $C$ in error $\le Ch^m$ ? \; Has asymp.\ rate even kicked in yet? :)}
+\quad \com{How big is prefactor $C$ in error $\le Ch^p$ ? \; Has asymp.\ rate even kicked in yet? :)}
 
 %You may not believe your model, but at least should trust its soln
 
@@ -859,7 +859,7 @@ shown: max error in $f'$
 
 \vg
   
-Can integrate \& differentiate functions given only point values $f(x_j)$
+Can integrate \& differentiate smooth funcs given only point values $f(x_j)$
 
 \sg
 
@@ -954,11 +954,12 @@ GOALS
 
 \sg
 
-  [Mike will in next talk overview the three flavors of PDE]
-
-  \sg
 
 BCs: simple (eg periodic cube) vs complicated ($u=0$ on a nasty surface)
+
+\sg
+
+\gre{[Mike will in next talk overview the three flavors of PDE]}
 
   
 \end{noframe}
