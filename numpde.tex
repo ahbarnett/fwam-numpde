@@ -909,9 +909,40 @@ See recommended books at end, and come discuss stuff!
 % ---------------------------------------------------
 \begin{frame}\ft{LECTURE II: numerical differential equations}
 
-GOALS (maybe not needed)
+\lb{Motivation}
 
-***
+Produce numerical approximations to the solutions of ODEs/PDEs.
+
+\vspace{1em}
+
+\lb{Goals for today}
+
+Basic overview of how different methods work.
+Understand error properties and suitability for different equations.
+
+\pause
+
+\vspace{1em}
+
+\lb{Families of methods}:
+
+\begin{itemize}
+	\item Finite Difference Methods \com{For time \& space.}
+	\pause
+	\item Finite Element Methods \com{Very general}
+	\pause
+	\begin{itemize}
+		\item Finite Volume Methods \com{Fluids}
+		\pause
+		\item ``Traditional'' Finite Elements \com{Mechanics}
+		\pause
+		\item ``Modern'' Finite Elements \com{Higher order}
+		\pause
+		\item Spectral Methods \com{Best accuracy for smooth solutions}
+	\end{itemize}
+	\pause
+	\item Boundary Integral Methods \com{Linear problems w/ boundary data}
+\end{itemize}
 
 \end{frame}
 
@@ -920,67 +951,86 @@ GOALS (maybe not needed)
 
 % feel free to scratch/edit, but some overview is needed
   
-\gb  ODEs: \; \com{eg pendulum} $u''(t) + \sin(u(t)) = 0$
- \hfill \com{task: solve $u(t)$ efficiently \& acc.}
-
-  \qquad needs initial conditions to kick it off \quad \com{eg $u(0)=1$, $u'(0)=0$}
-
- \qquad \com{eg kinetics of system of well-mixed chemicals, $\mbf{u}(t)$ is vector}
-  
-\sg
-
-\gb time-independent PDEs, usually ``elliptic'' \hfill \com{Mike will explain}
-
-\qquad \com{eg Poisson eqn} \; $\Delta u = g$,
-\hfill \com{ $u(\x)=$ %equilibrium
-  chemical concentration or electric potential}
-
-%  eg what electric potential caused by bunch of charges surrounded by H$_2$O ?
-%  (protein electrostatics)
-
-  \qquad \com{$\x$ means $(x,y,\dots)$, \quad $\Delta u$ means Laplacian $\partial^2 u/\partial x^2 + \partial^2 u/\partial y^2 + \dots = $ curvature of $u$}
-
-
-  \hfill \com{$g(\x) = $ volume source of chemical or charge}
-
-  
-\qquad needs boundary conditions (BCs) on $u$, or decay at infinity
-
-\qquad \com{ eg viscous fluid flow: $\mbf{u}$ is velocity field, Stokes eqns}
-  
-\qquad \com{ eg what is ground state of quantum system? solving t-indep.\ Schr\"odinger\; $\Delta u = Eu$}
+\gb  ODEs: \com{eg pendulum} $u''(t) + \sin(u(t)) = 0$
+	
+	\qquad Task: solve $u(t)$ given initial conditions \quad \com{e.g. $u(0)=1$, $u'(0)=0$}
+	
+	\pause
+	
+	\qquad \com{Others: local chemical/nuclear reactions ($\mbf{u}(t)$ is vector of multiple components)}
+	
+\pause
 
 \sg
 
-\gb time-dependent (evolution) PDEs \quad $u(\x,t)$ varies in space and time
+\gb Time-independent PDEs: \com{eg Poisson eqn} \; $\Delta u (\mbf{x}) = g(\mbf{x})$
 
-\qquad \com{eg heat/diffusion equation} \; $\partial u /\partial t + \Delta u= g$
-\hfill \com{$g(\x,t)=$ source}
+	\qquad Task: solve $u(\mbf{x})$ given forcing, boundary conditions
 
-\qquad needs initial and BCs \;\com{BCs may vary in time\ldots}
+	\qquad \com{Steady state of heat/diffusion, Gauss's law for conservative forces}
+
+	\qquad \com{$u(\mbf{x})$ is chemical concentration, gravitational/electric potential}
+	
+	\qquad \com{$\Delta u$ means Laplacian $\partial^2 u/\partial x^2 + \partial^2 u/\partial y^2 + \dots = $ curvature of $u$}
+	
+  	\qquad \com{$g(\x) = $ volume source of chemical, mass or charge density}
+  	
+  	\pause
+
+	\qquad \com{Others: Stokes eqn for velocity field $\mbf{u}$ in viscous fluid}
+  
+	\qquad \com{Others: t-indep.\ Schr\"odinger eqn for quantum systems: $\Delta \psi = (V -E) \psi$}
 
 \sg
 
+\pause
+
+\gb Time-dependent PDEs: \com{eg advection-diffusion} \; $\partial_t c + \nabla \cdot (\mbf{u} c) = \Delta c$
+
+	\qquad Task: solve $c(\x,t)$ given initial \& boundary conditions
+	
+	\qquad \com{Others: Navier-Stokes, magnetohydrodynamics, ...}
+
+\sg
+
+\pause
+
+[Mike will overview the three flavors of PDE in next talk]
+
+\sg
 
 BCs: simple (eg periodic cube) vs complicated ($u=0$ on a nasty surface)
-
-\sg
-
-\gre{[Mike will in next talk overview the three flavors of PDE]}
 
   
 \end{noframe}
 
 % ---------------------------------------------------
-\begin{frame}\ft{IVPs to BVPs}
+\begin{frame}\ft{Typical solution strategies}
 
-Motivate focus on BVPs by mentioning:
+Time-independent PDEs:
+\begin{enumerate}
+	\item Discretize variables (grid points, cells, basis functions)
+	\item Discretize operators/equations (derivatives)
+	\item Solve resulting algebraic system
+\end{enumerate}
 
-\gb Most people familiar with method of lines
+\pause
 
-\gb Equivalent ``propagator'' approach: discretize time, then solve BVP
+Time-dependent PDEs: \com{``method of lines''}
+\begin{enumerate}
+	\item Discretize variables (grid points, cells, basis functions)
+	\item Discretize operators/equations (derivatives)
+	\item Solve resulting coupled ODEs
+\end{enumerate}
 
-\gb Most timesteppers are FD methods (some examples)
+\pause
+
+ODEs:
+\begin{itemize}
+	\item Treat spatial problems as time-indep.\ PDEs \com{``boundary value problems''}
+	\pause
+	\item Evolve temporal problems with finite differences \com{``initial value problems''}
+\end{itemize}
 
 \end{frame}
 
