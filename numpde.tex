@@ -26,7 +26,7 @@
 % https://tex.stackexchange.com/questions/186044/how-a-framebox-will-appear-around-the-text-on-a-click
 
 \input{rgb}
-\newcommand{\lb}[1]{{\color{darkblue}#1}}    % from prosper azure titles
+\newcommand{\lb}[1]{{\color{blue}#1}}    % from prosper azure titles
 \newcommand{\bi}{\begin{itemize}}
 \newcommand{\ei}{\end{itemize}}
 \newcommand{\ben}{\begin{enumerate}}
@@ -152,19 +152,20 @@ TODO
   
   Concepts:
 
-  convergence order  \com{how does your accuracy improve vs number of
-    discretization points}
+  convergence order \quad  \com{how does accuracy improve w/ number of
+    discretization points?}
 
-  global \com{(one expansion formula for the whole domain)}
+  global \qquad \com{(one expansion formula for the whole domain)}
 
-  \quad vs local \com{(different expansions for $x$ in different regions)}
+  \quad vs local \quad \com{(different expansions for $x$ in different regions)}
 
-  spectral method \com{global, often use FFT, converge faster than any fixed order}
+  spectral method \quad \com{global, often use FFT, converge very fast}
+    %er than any fixed order}
 %    $N^{-p}$ for any $p$}
   
-  adaptivity \com{automatically placing degrees of freedom only where they need to be}
+  adaptivity \quad \com{automatically placing degrees of freedom only where they need to be}
 
-  rounding error \& catastrophic cancellation
+  rounding error \& catastrophic cancellation \quad \com{how not shoot self in the foot}
 
 \vg
   
@@ -296,7 +297,7 @@ test your code w/ {\em known exact soln} to check error conv.
 
   \bmp{2.9in}
 
-  Exists unique degree-$(p-1)$ poly, $\sum_{k=0}^{p-1} c_k x^k$
+  Exists unique degree-$(p{-}1)$ poly, $\sum_{k=0}^{p-1} c_k x^k$
   
   \quad which matches local data $(x_j,y_j)_{j=1}^p$
   
@@ -308,7 +309,7 @@ test your code w/ {\em known exact soln} to check error conv.
   \hfill
   \pig{1.6in}{figs/flocpoly}
   
-  \gb error $\bigO(h^{k})$, ie high order, but $\tilde f$ {\em not} continuous ($\tilde f \notin C$) \com{small jumps}
+  \gb error $\bigO(h^{p})$, ie high order, but $\tilde f$ {\em not} continuous ($\tilde f \notin C$) \hfill\com{has small jumps}
 
   \quad \com{if must have cont, recommend splines, eg cubic $p=3$:
     $\tilde f\in C^2$, meaning $\tilde f''$ is cont.}
@@ -318,14 +319,14 @@ test your code w/ {\em known exact soln} to check error conv.
 
 \vg
 
-\lb{How to find the degree-$(k-1)$ poly?}
+\lb{How to find the degree-$(p{-}1)$ poly?}
 
-1) Crafty: solve square lin sys for coeffs\quad 
+1) crafty: solve square lin sys for coeffs\quad 
 $\sum_{k<p} x_j^k c_k = y_j$ \hfill \com{ $j=1,\dots,p$}
 
 \qquad ie $V\mbf{c} = \y$ \qquad \com{$V$=''Vandermonde'' matrix, is ill-cond.\ but works}
 
-2) Traditional: barycentric formula
+2) traditional: barycentric formula
 $\displaystyle \tilde f(x) = \frac{\sum_{j=1}^p \frac{y_j}{x-x_j}w_j}{\sum_{j=1}^p \frac{1}{x-x_j}w_j}$
 \bmp{1in}
 
@@ -339,7 +340,7 @@ $\displaystyle \tilde f(x) = \frac{\sum_{j=1}^p \frac{y_j}{x-x_j}w_j}{\sum_{j=1}
 \sg
 
 Either way, $\tilde f(x) = \sum_{j=1}^p y_j \ell_j(x)$
-where $\ell_j(x)$ is $\ell$th Lagrange basis func:
+where $\ell_j(x)$ is $j$th Lagrange basis func:
 
 \qquad \pig{2in}{figs/lag}
 
@@ -365,7 +366,7 @@ where $\ell_j(x)$ is $\ell$th Lagrange basis func:
 %  interval $[a,b]$
 
   \pause
-  \bmp{3in}
+  \bmp{2.9in}
   But exists good choice of nodes\ldots
 
 \hg
@@ -382,7 +383,7 @@ where $\ell_j(x)$ is $\ell$th Lagrange basis func:
   
 \emp
 \hfill
-  \pig{1.6in}{figs/bern}
+  \pig{1.65in}{figs/bern}
 
 % * give the rate rho = 1.39.. ?  x=1i/3; rho=abs(x + sqrt(x^2-1)), rho^-32
   
@@ -517,7 +518,7 @@ Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
 
 \quad a crude bound is $\displaystyle\max_{x\in[0,2\pi)} |\tilde f(x)-f(x)| \le 2\sum_{|k|\ge N/2} |\hat f_k|$
 
-\quad \com{ie error controlled by mass of tail}
+\quad \com{ie error controlled by sum of tail}
 
 \end{frame}
 
@@ -537,11 +538,13 @@ Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
 
 \sg
   
-  So for a periodic $f\in C^p$, \; \com{recall means first $p$ derivs of $f$ bounded}
+  So for a periodic $f\in C^p$, \; \com{recall first $p$ derivs of $f$ bounded}
   
   %has $p$ bounded derivs
-  \qquad $\hat f_k=\bigO(k^{-p})$, tail sum $\bigO(N^{1-p})=\bigO(h^{p-1})$
-  \;\;\com{at least $(p-1)$th order acc.}% \;(could tweak)}
+  \qquad $\hat f_k=\bigO(k^{-p})$, tail sum $\bigO(N^{1-p})$ %=\bigO(h^{p-1})$
+  \;\;\com{$(p{-}1)$th order acc.}
+  \hfill\who{better: \cite{tref}}
+  % \;(could tweak)}
 
 \vg
 \pause
@@ -555,7 +558,7 @@ Example of: \hfill \framebox{$f$ smoother \;$\leftrightarrow$\; faster $\hat f_k
 Even smoother case: $f$ analytic,\quad
 \com{so $f(x)$ analytic in some complex strip $|\im x|\le \alpha$}
 
-\quad then $\hat f_k = \bigO(e^{-\alpha|k|})$, exponential conv in $N$
+\quad then $\hat f_k = \bigO(e^{-\alpha|k|})$, exp.\ conv.\ $\bigO(e^{-\alpha N/2})$
 \hfill \com{(fun proof: shift the contour)} 
 
 \quad \com{as with Bernstein ellipse, to get exp.\ conv.\ {\em rate} need understand $f$ {\em off its real axis} (wild!)}
@@ -646,18 +649,19 @@ Or if know $f$ smooth
 
 \sg
   
-``quadrature'': nodes $\{x_j\}$, weights $\{w_j\}$ s.t.
+``quadrature'': nodes $\{x_j\}$, weights $\{w_j\}$, s.t.
 $\int_a^b f(x) dx \approx \sum_{j=1}^N w_j f(x_j)$
 
 \sg
   
 %Here, usually user gets to choose nodes $x_j$ \hfill\com{so pick best ones!}
 
-Idea: \; get interpolant $\tilde f$ thru data $f(x_j)$, $\rightarrow$ {\em
+Idea: \; get interpolant $\tilde f$ thru data $f(x_j)$ $\rightarrow$ {\em
     integrate that exactly}
 
 \hfill  \com{``intepolatory quadrature''}
 
+\pause
 \vspace{-1ex}
 
 \bmp{3.3in}
@@ -665,27 +669,44 @@ Examples:
 
 \gb local piecewise linear $\rightarrow$ composite trapezoid rule
 
-   \qquad \com{$w_j=h/2$ at ends, $h$ in middle. \; low-order: error $\bigO(N^{-2})$}
+   \qquad \com{$w_j=h$ except $h/2$ at ends. \; low-order, err $\bigO(N^{-2})$, avoid!}
    \emp
    \hfill
    \pig{0.9in}{figs/trap}
 
-\gb global poly $\rightarrow$ Newton--Coates
+\sg
+   
+   \gb $N$-node global poly $\rightarrow$ gives
+% unique
+   $\{w_j\}$ integrating degree $N{-}1$ exactly
 
-\gb can do better: is ``Gaussian'' node set giving twice this rate!
+   \qquad \com{err $\bigO(\rho^{-N})$ \hfill solve lin sys
+     $V^T \mbf{w} = \{\int_a^b x^k dx\}_{k=0}^{N-1}$
+     %\{monomial integrals\}
+   } \; \who{Newton--Coates}
 
-$x_j,w_j$ codes in scipy, matlab, etc
+\sg
+   
+   \gb better: ``Gaussian'' $\{x_j,w_j\}$ integrates deg.\ $2N{-}1$
+   exactly! \hfill \com{err $\bigO(\rho^{-2N})$}
 
-Periodic case:
+Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\tt scipy}, etc}
 
-  periodic spectral get periodic trap rule $\bigO(c^{-N})$ if analytic
+\sg
+\pause
 
-  all $w_j = \frac{2\pi}{N}$
-  
-  PTR exact out to $N-1$, not merely $N/2$  (detail)
+\gb periodic case: $x_j=\frac{2\pi j}{N}$, $w_j=\frac{2\pi}{N}$ excellent
+\quad \com{``periodic trap.\ rule''}
 
-  Adaptive panels each with Gaussian 
+\qquad \com{easy to check integrates $e^{ikx}$ exactly for $|k|<N$, ``Gaussian''}
 
+\qquad \com{$f$ analytic in $|\im x|<\alpha$ gives exp.\ conv.\ $\bigO(e^{-\alpha N})$, twice as good as interp!}
+
+\pause
+
+\quad demo: {\tt \small N=14; sum(exp(cos(2*pi*(1:N)/N)))/N - besseli(0,1)}
+
+\hspace{1in} {\tt \small ans = 1.3e-15}
 
   
 \end{frame}
@@ -694,47 +715,53 @@ Periodic case:
 % ---------------------------------------------------
 \begin{frame}\ft{Advanced integration}
 
-custom quadratures for singularities, eg $f(x) = \mbox{smooth}\cdot|x|^{1/2}$
- \who{CCM: ask Manas Rachh}
+  \gb custom quadr.\ for singularity \; \com{eg $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$}
 
-  change of variables (sinh-tanh transform to remove endpoint singularities)
-  
-  Higher dims: For $d$ up to a few, products of 1D nodes
-  \com{exp.\ cost $N=n^d$}
-  
-  \com{can also do in other coord sys, eg sphere = $z \in [-1,1]$ tensor prod.\ with periodic $\phi\in[0,2\pi)$}
+  \qquad or for a new set of funcs.\ \com{``gen. Gaussian quad.''}
+\hfill \who{CCM: Manas Rachh}
 
-    \com{adaptivity works: subdivide boxes}
+\gb high-order end-corrections to trap.\ rule \hfill \who{Alpert '99}
+ 
+\vdots
+
+%\gb changes of variables \com{eg sinh-tanh transform to remove endpoint singularities}
+
+\sg
+\pause
+
+\lb{Higher dimensions $d>1$}
+
+For $d$ a few, tensor products of 1D $n$-node grids in each dim
+
+\com{other coord systems, eg sphere, can use tensor product in $(\theta,\phi)$}
+
+\com{adaptivity works: subdivide into boxes} \com{same pic as for interp.}
     
 \vg
   
-  \lb{Higher $d$}
+  \lb{Much higher $d\gg 1$}
 
+  Now exponential cost $N=n^d$ kills you :(
+
+  Are ``sparse grids'' scaling better \com{rely on funcs aligning w/ axes}
+  
   Monte Carlo methods: sum $N$ values of $f(\x_j)$ for $\x_j$ random points
   
   \quad error $= \bigO(N^{-1/2})$  \com{1/2-order acc, indep of dim $d$}
+
+*** check
   
-  \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
+ % \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
 
   
-\end{frame}
-
-% ---------------------------------------------------
-\begin{frame}\ft{}
-
-\end{frame}
-
-% ---------------------------------------------------
-\begin{frame}\ft{}
-
 \end{frame}
 
 % ---------------------------------------------------
 \begin{frame}\ft{Numerical differentiation}
 
-Goal: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
+Task: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
 
-\qquad \com{obviously again we have to assume $f$ smooth}
+\qquad \com{obviously again we have to assume $f$ smooth!}
 
 Finite differencing idea: $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^3)$
 \com{Taylor's thm}
@@ -749,30 +776,78 @@ trade-off rounding error
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{Differentiation in $d=1$}
+\begin{noframe}\ft{Differentiation in $d=1$}
 
-As w/ integration: once have interpolant, differentiate it exactly
+As w/ integration: get interpolant $\rightarrow$ differentiate it exactly
+\hfill \whoc{\cite[Ch.~6]{tref}}
 
-$D$ is $p\times p$ matrix acting on func.\ values $\{f(x_j)\}$ to give $\{f'(x_j)\}$
+\quad \com{get $p\times p$ matrix $D$, simple formula, acting on func.\ values $\{f(x_j)\}$ to give $\{f'(x_j)\}$}
 
-Examples: periodic grid in $[0,2\pi)$, max error:
+\sg
 
-\pig{3in}{figs/trefdiff}
+\bmp{1.4in}
+Examples:
+
+\sg
+
+\quad \com{$N$ Chebychev nodes}
+
+\quad \com{in $[-1,1]$}
+
+\sg
+
+shown: max error in $f'$
+
+\vspace{20ex}
+
+\emp
+\hfill
+\pig{3in}{figs/trefchebdiff_lab.png}
+
+\sg
+
+\gb for $N$ large, dense $D$ is never formed, instead applied via FFT
 
 
-\end{frame}
+\end{noframe}
 
 
 % ---------------------------------------------------
-\begin{frame}\ft{Recap concepts}
+\begin{frame}\ft{Summary: we scratched the surface}
 
+Can integrate \& differentiate functions given only point values $f(x_j)$
 
-  repeat list of concepts
+\sg
 
-  See refs at end
+Both follow from building a good interpolant
+
+\sg
+
+For $f$ smooth in 1D, can \& should easily get {\em many} (10+) digits accuracy
+
+\vspace{4ex}
+
+\lb{Concepts:}
+
+\sg
+
+  convergence order/rate
+
+  smoothness
+
+  spectral method
   
+  global vs local
   
-%extrapolation: possible if know $f$ is smooth
+  adaptivity
+
+  rounding error \& catastrophic cancellation
+
+  tensor products for 2D \& 3D; higher gets harder
+  
+\vspace{4ex}
+
+See references at end of slide, and come ask us stuff!
 
 \end{frame}
 
@@ -799,7 +874,7 @@ GOALS
 
   \qquad needs initial conditions to kick it off \quad \com{eg $u(0)=1$, $u'(0)=0$}
 
- \qquad \com{eg kinetics of system of well-mixed chemicals, $\mbf{u}$ is vector}
+ \qquad \com{eg kinetics of system of well-mixed chemicals, $\mbf{u}(t)$ is vector}
   
 \sg
 
@@ -822,7 +897,7 @@ GOALS
 
 \qquad \com{ eg viscous fluid flow: $\mbf{u}$ is velocity field, Stokes eqns}
   
-\qquad \com{ eg what is ground state of quantum system, solving t-indep.\ Schr\"odinger\; $\Delta u = Eu$ ?}
+\qquad \com{ eg what is ground state of quantum system? solving t-indep.\ Schr\"odinger\; $\Delta u = Eu$}
 
 \sg
 
