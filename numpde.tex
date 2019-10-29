@@ -757,22 +757,50 @@ For $d$ a few, tensor products of 1D $n$-node grids in each dim
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Numerical differentiation}
+\begin{noframe}\ft{Numerical differentiation}
 
-Task: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
+  Task: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
+  \hfill\com{assume smooth}
 
-\qquad \com{obviously again we have to assume $f$ smooth!}
+%\qquad \com{obviously again we have to assume $f$ smooth!}
+\sg
+\pause
 
-Finite differencing idea: $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^3)$
-\com{Taylor's thm}
+\lb{Finite differencing} idea, 1D:\;\; $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^2)$
+\hfill\com{Taylor's thm}
 
-*** demo of error vs $h$.
 
-trade-off rounding error
+\bmp{1.8in}
+Want smallest error:
 
-  Rounding error  \cite[Ch.~5--6]{GCbook} coming in Lec II
+suggests taking $h\to 0$ ?
 
-\end{frame}
+\vg
+
+Let's see how that goes\ldots
+\vspace{10ex}
+
+\emp
+\pause
+\hfill\pig{2.7in}{figs/fderr}
+
+\sg
+
+\gb shrinking $\bigO(h^2)$ error gets swamped by a new growing error\dots what?
+
+\pause
+
+\gb CPU arithmetic done only to relative ``rounding error'' $\epsilon_\tbox{mach}\sim 10^{-16}$
+
+\gb subtracting v. close $f(x+h)$ and $f(x-h)$: ``catastrophic cancellation''
+
+\gb balance two error types: $h_\tbox{best} \sim (\epsilon_\tbox{mach})^{1/3} \sim 10^{-5}$
+
+\sg
+
+\com{Reading: floating point, backward stability}\; \whoc{\cite[Ch.~5--6]{GCbook} \cite[Ch.~12--15]{nla}}
+
+\end{noframe}
 
 
 % ---------------------------------------------------
