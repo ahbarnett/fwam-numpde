@@ -1039,77 +1039,164 @@ ODEs:
 
 Basic viewpoint:
 
-\gb Construct Taylor-series approximation to value at neighboring points
+\gb Discretize variables on a discrete grid
 
-\gb For N points, expand to (N-1) derivatives (error $\bigO(h^N)$)
+\gb Construct Taylor-series approximations to values at neighboring points
 
-\gb Eliminate system to get approximation to $d$-th derivative ($d < N$) (error $\bigO(h^{N-d})$)
+\gb For N points, expand to N terms (error $\bigO(h^N)$)
+
+\gb Eliminate to get approximation to $d$-th derivative (error $\bigO(h^{N-d})$)
+
+\pause 
 
 \sg
 
+{\small
+
+E.g. Centered differences on 3 points: $x-h$, $x$, $x+h$
+%
+\begin{align}
+	u(x + h) &= u(x) + u'(x) h + u''(x) h^2 / 2 + \bigO(h^3) \\
+	u(x - h) &= u(x) - u'(x) h + u''(x) h^2 / 2 + \bigO(h^3)
+\end{align}
+
+\pause
+
+To approximate $u'(x)$, subtract to eliminate $u''(x)$:
+%
+\begin{equation}
+ u'(x)= \frac{u(x+h) - u(x-h)}{2 h} + \bigO(h^2)
+\end{equation}
+
+\pause
+ 
+To approximate $u''(x)$, add to eliminate $u'(x)$:
+%
+\begin{equation}
+	u''(x) = \frac{u(x+h) - 2 u(x) + u(x-h)}{h^2} + \bigO(h^2)
+\end{equation}
+
+}
+
+\begin{center}
+	\com{Extra order here due to symmetry}
+\end{center}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite difference methods}
+
 Alternate viewpoint:
 
-\gb Differentiate the unique interpolating polynomial of deg N-1
+\gb Discretize variables on a discrete grid
 
-Illustrate with centered forward 1st-order scheme, centered 2nd-order scheme (get extra degree for free).
+\gb Construct interpolating polynomial of N nearest points. 
 
-\end{frame}
+\qquad \com{Unique, degree N-1.}
 
-% ---------------------------------------------------
-\begin{frame}\ft{Timestepping with finite difference methods}
+\gb Differentiate the local interpolant to approximate derivatives.
 
-Consider temporal ODE $u'(t) = f(u(t))$
-
-Explicit methods: simple, just require evaluating $f(u_n)$.
-
-\gb E.g. Forward Euler: use 1st-order forward difference rule
-
-\com{Unstable for large timesteps}
-
-\bea
-u'(t) = - \lambda u(t) \quad \lambda > 0 \\
-\frac{u_{n+1} - u_n}{k} = - \lambda u_n \\
-u_{n+1} = (1 - k \lambda) u_n \\
-\boxed{k \lambda < 2}
-\eea
-
-Implicit methods: stable, but require solving $f(u^{n+1}) = ...$
-
-\gb Backward Euler: use 1st-order backward difference rule
-
-\com{Stability, but potentially at high cost}
-
-\bea
-u'(t) = - \lambda u(t) \quad \lambda > 0 \\
-\frac{u_{n+1} - u_n}{k} = - \lambda u_{n+1} \\
-u_{n+1} = (1 + k \lambda)^{-1} u_n \\
-\eea
-
-\end{frame}
-
-% ---------------------------------------------------
-\begin{frame}\ft{Advanced finite difference techniques}
-
-  % do you go to 2D & 3D here? or earlier?
-
-\hfill\pig{0.8in}{figs/fd}  
-
-\gb Selecting stencils term by term (e.g. upwinding)
-
-\gb Adaptive stencil selection (e.g. WENO)
+\pause
 
 \vspace{2em}
 
-Resources: ...
+{\small
 
-Codes: ...
+E.g. Centered differences using 3 points:
+
+\begin{center}
+\pig{4in}{figs/fd_local_interp}
+\end{center}
+
+
+}
+
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Implicit \& Explicit Timestepping}
+
+Consider temporal ODE $u'(t) = f(u(t))$.
+
+Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
+
+\sg
+
+\pause
+
+Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
+
+{\small
+\gb E.g.\ forward Euler: use 1st-order forward difference
+%
+\begin{align}
+	u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
+	u_{n+1} - u_n &= - k \lambda u_n \\
+	u_{n+1} &= (1 - k \lambda) u_n
+\end{align}
+}
+\begin{center}
+	\com{$k \lambda < 2$ for stability}	
+\end{center}
+
+\sg
+
+\pause 
+
+Implicit schemes: require solving $f(u^{n+1}) = ...$ \com{Stable but expensive}
+
+{\small
+\gb E.g.\ backward Euler: use 1st-order backward difference
+%
+\begin{align}
+u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
+u_{n+1} - u_n &= - k \lambda u_{n+1} \\
+u_{n+1} &= (1 + k \lambda)^{-1} u_n
+\end{align}
+}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite difference methods}
+
+\vspace{2em}
+
+\bmp{3.5in}
+\gb Extends to multiple dimensions with regular grids
+
+\gb Simple to adjust order of accuracy
+
+\gb Restricted to simple geometries / regular grids
+
+\gb Some more advanced techniques:
+
+\qquad \gb Conservative schemes
+
+\qquad \gb Select stencils term by term \com{``upwinding''}
+
+\qquad \gb Adaptive stencil selection for jumps \com{``WENO''}
+
+\emp
+\hfill
+\pig{1in}{figs/fd}  
+
+\vspace{2em}
+
+\pause
+
+Resources: LeVeque ``Finite Difference Methods for ODE/PDE''
+
+Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \end{frame}
 
 % ---------------------------------------------------
 \begin{frame}\ft{Finite element methods}
 
-  \bmp{3.5in}
+\bmp{3.5in}
 Partition domain into elements, represent unknown within each element using basis functions (usually polynomials)
 \emp
 \hfill
