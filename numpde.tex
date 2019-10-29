@@ -175,9 +175,9 @@ spectral methods, adaptivity, rounding error \& catastrophic cancellation
 \bmp{3in}
   Say $y_j = f(x_j)$ known at nodes $\{x_j\}$ \quad \com{$N$-pt ``grid''}
 
-  exact data, not noisy
+  \quad\com{note: exact data, not noisy}
   
-  want interpolant $\tilde f(x)$, s.t.\ $\tilde f(\x_j)=y_j$
+  want interpolant $\tilde f(x)$, s.t.\ $\tilde f(x_j)=y_j$
   \emp
   \hfill
 \pig{1.5in}{figs/fsamp}
@@ -191,7 +191,7 @@ spectral methods, adaptivity, rounding error \& catastrophic cancellation
   \gb extra info helps, eg $f$ periodic, or $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$
   \emp
   \hfill
-\pig{.5in}{figs/fcrazy}
+\pig{.6in}{figs/fcrazy}
 
 \pause
 \vg
@@ -213,9 +213,9 @@ Error $\max_x|\tilde f(x)-f(x)| = \bigO(h)$ as $h\to 0$
 
 \sg
 
-\gre{Recall %asymptotic
+\gre{Recap %asymptotic
 notation
-  ``$\bigO(h)$'': exists $C,h_0>0$ s.t.\ error $\le Ch$ for all $h<h_0$}
+  ``$\bigO(h)$'': exists $C,h_0$ s.t.\ error $\le Ch$ for all $0<h<h_0$}
 
 \pause
 \vg
@@ -234,7 +234,7 @@ max error $ = \bigO(h^2)$ as $h\to 0$
 \hfill
 \pig{1.3in}{figs/flin}
 
-\vg
+\sg
 
 Message: a higher order method is {\em only} higher order if $f$ smooth enough
 
@@ -443,7 +443,7 @@ Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^
  \; \com{py+numba, fast} \hfill \who{Stein '19}
 
  \gb {\tt chebfun} for MATLAB
-%\; \com{big-$p$ Cheb.\ grids can exploit FFTs!}
+\; \com{big-$N$ Cheb.\ grids done via FFTs!}
 \hfill  \who{Trefethen et al.}
 
 \sg
@@ -591,7 +591,9 @@ FFT \com{cost $\bigO(N\log N)$} swaps from $f(x_j)$ \com{grid} to $\hat f_k$ \co
   \bmp{2.2in}
   If you {\em can} choose the nodes:
 
-  \quad tensor product of 1D interp.
+\sg
+  
+  \quad tensor product of 1D grids
 
   \quad either global
 
@@ -609,38 +611,38 @@ FFT \com{cost $\bigO(N\log N)$} swaps from $f(x_j)$ \com{grid} to $\hat f_k$ \co
 
 %\hfill\who{Babb et al '18}  but this is generic
 
-\vg
-\pause
-
-  \bmp{2.1in}
-If {\em cannot} choose the nodes:
-  
-  interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
-
 \sg
-  
-  \com{Eg google terrain: $f(\x)$ rough $\rightarrow$ v.\ low ord,}
+\pause
+If {\em cannot} choose the nodes:
+    interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
+
+
+  \bmp{2.2in}
+  \quad \com{eg google terrain: $f(\x)$ rough $\rightarrow$ garbage:}
 % Bavarian pre-alps
-
-\quad \com{see amusing transition in interp.\ type:}
-
+%\hfill \com{see amusing jump in interp.\ type:}
 
 \vg
 
 Or if know $f$ smooth
 
-\quad \com{fit local multivariate polynomial}
+\quad \com{locally fit multivariate polynomials}
 
-  If $f$ noisy and smooth, many methods
+\sg
 
-  kriging, kernels, ***
+If also data noisy, many methods:
 
-  sparse grids
-  
-  neural networks
+\quad  \com{kriging (Gauss.\ proc.), NUFFT, RBFs}
 
-  tensor networks
-  
+\sg
+
+If also high dim $d\gg 1$:
+
+%\quad\com{  sparse grids}
+
+\quad\com{  neural networks, tensor networks}
+
+\vg
 
   \emp
   \hfill
@@ -689,7 +691,7 @@ Examples:
    \qquad \com{err $\bigO(\rho^{-N})$ \hfill solve lin sys
      $V^T \mbf{w} = \{\int_a^b x^k dx\}_{k=0}^{N-1}$
      %\{monomial integrals\}
-   } \; \who{Newton--Coates}
+   } \; \who{Newton--Cotes}
 
 \sg
    
@@ -777,6 +779,10 @@ For $d$ a few, tensor products of 1D $n$-node grids in each dim
 
 
 \bmp{1.8in}
+\com{``centered difference'' formula}
+
+\vg
+
 Want smallest error:
 
 suggests taking $h\to 0$ ?
@@ -784,7 +790,7 @@ suggests taking $h\to 0$ ?
 \vg
 
 Let's see how that goes\ldots
-\vspace{10ex}
+\vspace{8ex}
 
 \emp
 \pause
@@ -810,7 +816,7 @@ Let's see how that goes\ldots
 
 
 % ---------------------------------------------------
-\begin{noframe}\ft{Better approach to differentiation ($d=1$)}
+\begin{noframe}\ft{High-order (better!) differentiation, $d=1$}
 
 As w/ integration: get interpolant $\rightarrow$ differentiate it exactly
 \hfill \whoc{\cite[Ch.~6]{tref}}
@@ -877,15 +883,16 @@ smoothness \hfill \com{smooth $\Leftrightarrow$ fast convergence; \; nonsmooth n
 
   \quad vs local \hspace{.8in} \com{(distinct formulae for $x$ in different regions)}
 
-  spectral method \hspace{.3in} \com{global, can exploit FFT, converge very fast}
+  spectral method \hspace{.3in} \com{global, converge v.\ fast, even non-per.\ can exploit FFT}
+%(even non-periodic Cheb.\ case),
     %er than any fixed order}
 %    $N^{-p}$ for any $p$}
   
-  adaptivity \hfill \com{automatically splitting boxes to put nodes only where they need to be}
+  adaptivity \hfill \com{auto split boxes to put nodes only where they need to be}
 
   rounding error \& catastrophic cancellation \quad \com{how not shoot self in the foot}
 
-  tensor products for 2D, 3D \quad \com{for higher dims: randomized/NN/TN}\;\who{Sessions C,D,E}
+  tensor products for 2D, 3D \quad \com{for higher dims: randomized/NN/TN}\;\who{Th/Fr sessions}
   
 %for $d\gg 1$ high dims, see other sessions: random \com{Monte Carlo} and neural networks.
 
@@ -1163,7 +1170,16 @@ heavily uses high-order integration methods
 
 \bibliographystyle{amsalpha}  % abbrv
 \bibliography{numpde}
-  
+
+\vspace{4ex}
+
+This document: \; \url{https://github.com/ahbarnett/fwam-numpde}
+
+\sg
+
+See {\tt code} directory for MATLAB code used to generate figures
+
+
 \end{frame}
 
 
