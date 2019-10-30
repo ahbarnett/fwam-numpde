@@ -1079,26 +1079,26 @@ Basic viewpoint:
 
 E.g. Centered differences on 3 points: $x-h$, $x$, $x+h$
 %
-\begin{align}
+\begin{align*}
 	u(x + h) &= u(x) + u'(x) h + u''(x) h^2 / 2 + \bigO(h^3) \\
 	u(x - h) &= u(x) - u'(x) h + u''(x) h^2 / 2 + \bigO(h^3)
-\end{align}
+\end{align*}
 
 \pause
 
 To approximate $u'(x)$, subtract to eliminate $u''(x)$:
 %
-\begin{equation}
+\begin{equation*}
  u'(x)= \frac{u(x+h) - u(x-h)}{2 h} + \bigO(h^2)
-\end{equation}
+\end{equation*}
 
 \pause
  
 To approximate $u''(x)$, add to eliminate $u'(x)$:
 %
-\begin{equation}
+\begin{equation*}
 	u''(x) = \frac{u(x+h) - 2 u(x) + u(x-h)}{h^2} + \bigO(h^2)
-\end{equation}
+\end{equation*}
 
 }
 
@@ -1123,15 +1123,29 @@ Alternate viewpoint:
 
 \pause
 
-\vspace{2em}
+\vspace{1em}
 
 {\small
 
 E.g. Centered differences using 3 points:
 
+\vspace{-1em}
 \begin{center}
 \pig{4in}{figs/fd_local_interp}
 \end{center}
+%
+\pause
+\vspace{-1em}
+\begin{equation*}
+	\Delta u(x) = f(x) \quad \rightarrow \quad D_2 \cdot \mbf{u} = \mbf{f}
+\end{equation*}
+%
+\pause
+\vspace{-1em}
+%
+\begin{equation*}
+	\partial_t u(x) = \Delta u(x) + f(x) \quad \rightarrow \quad \partial_t \mbf{u} = D_2 \cdot \mbf{u} + \mbf{f}
+\end{equation*}
 
 
 }
@@ -1155,11 +1169,11 @@ Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
 {\small
 \quad E.g.\ forward Euler: use 1st-order forward difference
 %
-\begin{align}
+\begin{align*}
 	u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
 	u_{n+1} - u_n &= - k \lambda u_n \\
 	u_{n+1} &= (1 - k \lambda) u_n
-\end{align}
+\end{align*}
 }
 \begin{center}
 	\com{$k \lambda < 2$ for stability}	
@@ -1174,11 +1188,11 @@ Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
 {\small
 \quad E.g.\ backward Euler: use 1st-order backward difference
 %
-\begin{align}
+\begin{align*}
 u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
 u_{n+1} - u_n &= - k \lambda u_{n+1} \\
 u_{n+1} &= (1 + k \lambda)^{-1} u_n
-\end{align}
+\end{align*}
 }
 
 \end{frame}
@@ -1226,9 +1240,9 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \gb Represent variables with basis functions on elements:
 %
-\begin{equation}
+\begin{equation*}
 	u(\mbf{x}) = \sum_{n=1}^{N} u_n \phi_n(\mbf{x})
-\end{equation} 
+\end{equation*} 
 
 \qquad \com{``Trial functions'' $\phi_n$ usually polynomials on each element}
 
@@ -1242,13 +1256,13 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \gb Solve equations using Galerkin/weighted-residual method:
 %
-\begin{equation}
+\begin{equation*}
 	\partial_t u(\mbf{x}) + L u(\mbf{x}) = f(\mbf{x})
-\end{equation}
+\end{equation*}
 %
-\begin{equation}
+\begin{equation*}
 	\int \psi_m (\mbf{x}) \left[\partial_t u(\mbf{x}) + L u(\mbf{x}) - f(\mbf{x})\right] \,d\mbf{x} = 0
-\end{equation}
+\end{equation*}
 %
 \qquad \com{For all ``test functions'' $\psi_m$}
 
@@ -1256,9 +1270,9 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \gb Solve resulting algebraic system:
 %
-\begin{equation}
+\begin{equation*}
 	M \cdot \partial_t \mbf{u} + S \cdot \mbf{u} = M \cdot \mbf{f}
-\end{equation}
+\end{equation*}
 %
 \qquad \com{``Mass matrix'' $M$, ``stiffness matrix'' $S$}
 
@@ -1267,7 +1281,11 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 % ---------------------------------------------------
 \begin{frame}\ft{Finite volume methods}
 
-\gb Piecewise constants inside elements as test/trial functions
+\sg
+
+\bmp{3.5in}
+
+\gb Piecewise constants inside elements
 
 \qquad \com{$M = I$, easy explicit formulation}
 
@@ -1275,9 +1293,14 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \gb Integrate flux terms by parts:
 %
-\begin{equation}
+\begin{equation*}
 	\int \psi_m \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\Omega_i} \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\delta \Omega_i} \mbf{n} \cdot \mbf{j} \,dS
-\end{equation}
+\end{equation*}
+
+\emp
+\pig{0.9in}{figs/fvm_flux}
+
+\sg
 
 \gb Requires integrating fluxes at cell interfaces (usually 2nd order)
 
@@ -1304,19 +1327,28 @@ Codes: Arepo, Athena, OpenFOAM
 % ---------------------------------------------------
 \begin{frame}\ft{Finite element methods}
 
+\sg
+
+\bmp{3.2in}
 Traditional FEM
 
-\gb Use piecewise linear ``tent'' functions. \com{Continuous, 2nd order}
+\gb Use piecewise linear ``tent'' functions.
+
+\qquad \com{Continuous, 2nd order}
 
 \gb ``Weak form'' from integrating by parts:
 %
-\begin{equation}
+\begin{equation*}
 	\int \psi_m \nabla^2 u \,d\mbf{x} = - \int \nabla \psi_m \cdot \nabla u \,d\mbf{x}
-\end{equation}
+\end{equation*}
+%
+\qquad \com{Lowers order of derivatives, allows linear basis}
 
-\qquad \com{Lowers order of derivatives, allows piecewise linear representation}
+\emp
+\pig{1.3in}{figs/Piecewise_linear_function2D}
 
 \pause
+\sg
 
 \gb Not conservative and $M \neq I$, need implicit schemes or to invert $M$
 
@@ -1359,9 +1391,9 @@ Periodic intervals: Fourier series for test/trial functions. \com{Fast w/ FFT}
 
 \qquad \com{$M$ and $S$ matrices typically diagonal, even in multiple dimensions!}
 %
-\begin{equation}
+\begin{equation*}
 	\nabla^2 \exp(i \mbf{k} \cdot \mbf{x}) = - k^2 \exp(i \mbf{k} \cdot \mbf{x})
-\end{equation}
+\end{equation*}
 
 \pause
 
