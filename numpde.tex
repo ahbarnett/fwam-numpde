@@ -1020,12 +1020,11 @@ Understand error properties and suitability for different equations.
 
 \pause
 
-[Mike will overview the three flavors of PDE in next talk]
+Choose method based on solution behavior (Mike's talk next)
 
 \sg
 
-BCs: simple (eg periodic cube) vs complicated ($u=0$ on a nasty surface)
-
+Or boundary conditions: simple (periodic box) vs complicated domain
   
 \end{noframe}
 
@@ -1045,7 +1044,7 @@ Time-dependent PDEs: \com{``method of lines''}
 \begin{enumerate}
 	\item Discretize variables (grid points, cells, basis functions)
 	\item Discretize operators/equations (derivatives)
-	\item Solve resulting coupled ODEs
+	\item Solve resulting coupled ODEs for evolution of coefficients
 \end{enumerate}
 
 \pause
@@ -1068,7 +1067,7 @@ Basic viewpoint:
 
 \gb Construct Taylor-series approximations to values at neighboring points
 
-\gb For N points, expand to N terms (error $\bigO(h^N)$)
+\gb Using N points, expand to N terms (error $\bigO(h^N)$)
 
 \gb Eliminate to get approximation to $d$-th derivative (error $\bigO(h^{N-d})$)
 
@@ -1116,11 +1115,11 @@ Alternate viewpoint:
 
 \gb Discretize variables on a discrete grid
 
-\gb Construct interpolating polynomial of N nearest points. 
+\gb Construct interpolating polynomial on N nearest points. 
 
 \qquad \com{Unique, degree N-1.}
 
-\gb Differentiate the local interpolant to approximate derivatives.
+\gb Differentiate this local interpolant to approximate derivatives.
 
 \pause
 
@@ -1151,10 +1150,10 @@ Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
 
 \pause
 
-Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
+\gb Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
 
 {\small
-\gb E.g.\ forward Euler: use 1st-order forward difference
+\quad E.g.\ forward Euler: use 1st-order forward difference
 %
 \begin{align}
 	u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
@@ -1170,10 +1169,10 @@ Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
 
 \pause 
 
-Implicit schemes: require solving $f(u^{n+1}) = ...$ \com{Stable but expensive}
+\gb Implicit schemes: require inverting $f(u^{n+1})$ \com{Stable but expensive}
 
 {\small
-\gb E.g.\ backward Euler: use 1st-order backward difference
+\quad E.g.\ backward Euler: use 1st-order backward difference
 %
 \begin{align}
 u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
@@ -1190,9 +1189,9 @@ u_{n+1} &= (1 + k \lambda)^{-1} u_n
 \vspace{2em}
 
 \bmp{3.5in}
-\gb Extends to multiple dimensions with regular grids
+\gb Simple to adjust order of accuracy / directionality
 
-\gb Simple to adjust order of accuracy
+\gb Extends to multiple dimensions with regular grids
 
 \gb Some more advanced techniques:
 
@@ -1288,7 +1287,7 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 
 \gb Exactly conservative: good for hyperbolic PDEs.  Widely used in CFD.
 
-\gb Similar the finite difference on structured meshes.
+\gb Similar to finite differences on structured meshes.
 
 \gb Hard to build high-order schemes on unstructured meshes.
 
@@ -1317,9 +1316,13 @@ Traditional FEM
 
 \qquad \com{Lowers order of derivatives, allows piecewise linear representation}
 
+\pause
+
 \gb Not conservative and $M \neq I$, need implicit schemes or to invert $M$
 
 \gb Easy to adjust order of accuracy. \com{Use higher degree polynomials, ``p adaptivity''}
+
+\pause
 
 \vspace{1em}
 
@@ -1328,6 +1331,8 @@ Modern research: high-order FEM
 \gb Discontinuous Galerkin (FVM + FEM): high order inside elements, but allow discontinuities. \com{Need Riemann solvers again}
 
 \gb Spectral elements: very high order internal representations
+
+\pause
 
 \vspace{1em}
 
@@ -1382,7 +1387,10 @@ Other geometries: other polynomials, spherical harmonics, ...
 
 \small
 
-\gb \textbf{Exponential} accuracy for smooth solutions. \com{Need to regularize discontinuities}
+\gb \textbf{Exponential} accuracy for smooth solutions. 
+\com{Need to regularize discontinuities}
+
+\pause
 
 \begin{center}
 	\pig{1.3in}{figs/fig_OT_image}
@@ -1459,8 +1467,38 @@ Many experts in CCM \& CCB.  See Jun Wang's talk later today!
 % ---------------------------------------------------
 \begin{frame}\ft{Summary}
 
+\gb Finite differences: local polynomial approximations, simple and robust
 
+\pause
 
+\gb Finite elements: local basis functions, complex geometries
+
+\pause
+
+\gb Spectral methods: global basis functions, highly accurate
+
+\pause
+
+\gb Integral methods: reduced dimensionality, linear equations
+
+\pause
+
+\sg
+\sg
+
+Best method often depends on multiple factors:
+
+\begin{itemize}
+	\item Problem domain (simple vs complicated)
+	\item Behavior of solutions (Mike's talk next)
+	\item Desired accuracy vs cost
+	\item Code availability
+	\item ...
+\end{itemize}
+
+\pause
+
+Many local experts on different methods!
   
 \end{frame}
 
