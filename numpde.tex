@@ -1193,8 +1193,6 @@ u_{n+1} &= (1 + k \lambda)^{-1} u_n
 
 \gb Simple to adjust order of accuracy
 
-\gb Restricted to simple geometries / regular grids
-
 \gb Some more advanced techniques:
 
 \qquad \gb Conservative schemes
@@ -1202,6 +1200,8 @@ u_{n+1} &= (1 + k \lambda)^{-1} u_n
 \qquad \gb Select stencils term by term \com{``upwinding''}
 
 \qquad \gb Adaptive stencil selection for jumps \com{``WENO''}
+
+\gb Restricted to simple geometries / well-structured grids
 
 \emp
 \hfill
@@ -1221,48 +1221,116 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 \begin{frame}\ft{Finite element methods}
 
 \bmp{3.5in}
-Partition domain into elements, represent unknown within each element using basis functions (usually polynomials)
+
+\gb Partition domain into elements. \com{Unstructured}
+
+\gb Represent variables with basis functions on elements:
+%
+\begin{equation}
+	u(\mbf{x}) = \sum_{n=1}^{N} u_n \phi_n(\mbf{x})
+\end{equation} 
+
+\qquad \com{``Trial functions'' $\phi_n$ usually polynomials on each element}
+
 \emp
 \hfill
-\pig{1.1in}{figs/fem}
+\pig{1in}{figs/fem}
 
-Convert equations to weak form
+\pause
 
-\gb Give example
+\sg
 
-\gb Weak form advantages: lowers order, works if lower derivs are integrable (good for discontinuities, hyperbolic), can use tent functions
+\gb Solve equations using Galerkin/weighted-residual method:
+%
+\begin{equation}
+	\partial_t u(\mbf{x}) + L u(\mbf{x}) = f(\mbf{x})
+\end{equation}
+%
+\begin{equation}
+	\int \psi_m (\mbf{x}) \left[\partial_t u(\mbf{x}) + L u(\mbf{x}) - f(\mbf{x})\right] \,d\mbf{x} = 0
+\end{equation}
+%
+\qquad \com{For all ``test functions'' $\psi_m$}
 
-Replace weak form with Galerkin/weighted-residual form to get algebraic system
+\pause
 
-Traditional FEM methods use tent functions, produce continuous solutions.  Fluxes at cell boundaries can be computed from internal representation, but can be discontinuous (non conservative).
+\gb Solve resulting algebraic system:
+%
+\begin{equation}
+	M \cdot \partial_t \mbf{u} + S \cdot \mbf{u} = M \cdot \mbf{f}
+\end{equation}
+%
+\qquad \com{``Mass matrix'' $M$, ``stiffness matrix'' $S$}
 
 \end{frame}
 
 % ---------------------------------------------------
 \begin{frame}\ft{Finite volume methods}
 
-Case of FEM taking functions to be piecewise constant inside elements
+\gb Piecewise constants inside elements as test/trial functions
 
-Resulting system is exactly conservative (good for hyperbolic), but requires Riemann solve
+\qquad \com{$M = I$, easy explicit formulation}
 
-\gb Order increased by using neihgbors to reconstruct higher order internal representations or fluxes (slope/flux reconstruction)
+\pause
 
-\gb Reconstruction is nonlinear to control oscillations around discontinuities (TVD, ENO/WENO).
+\gb Integrate flux terms by parts:
+%
+\begin{equation}
+	\int \psi_m \nabla \cdot \mbf{j} \,d\mbf{x} = \int \mbf{n} \cdot \mbf{j} \,dS
+\end{equation}
 
-Very common in CFD, CCA
+\gb Requires integrating fluxes at cell interfaces
+
+\qquad \com{Many methods for Riemann solvers/flux reconstruction: TVD, ENO, WENO, ...}
+
+\pause
+
+\gb Exactly conservative: good for hyperbolic PDEs.  Widely used in CFD.
+
+\gb Similar the finite difference on structured meshes.
+
+\gb Hard to build high-order schemes on unstructured meshes.
+
+\sg
+
+\pause
+
+Codes: Arepo, Athena, OpenFOAM
+
+\com{Many local experts in CCA!}
 
 \end{frame}
 
 % ---------------------------------------------------
-\begin{frame}\ft{Advanced finite element methods}
+\begin{frame}\ft{Finite element methods}
 
-\gb Discontinuous Galerkin: allow discontinuities, need Riemann solvers again
+Traditional FEM
 
-\gb Spectral elements: move towards large p for better internal representations
+\gb Use piecewise linear ``tent'' functions. \com{Continuous}
 
-Resources: ...
+\gb ``Weak form'' from integrating by parts:
+%
+\begin{equation}
+	\int \psi_m \nabla^2 u \,d\mbf{x} = - \int \nabla \psi_m \cdot \nabla u \,d\mbf{x}
+\end{equation}
 
-Codes: ...
+\qquad \com{Lowers order of derivatives, allows piecewise linear representation}
+
+\gb Not conservative and $M \neq I$, need implicit schemes or to invert $M$
+
+\gb Easy to adjust order of accuracy. \com{Use higher degree polynomials, ``p adaptivity''}
+
+\vspace{1em}
+
+Modern research: high-order FEM
+
+\gb Discontinuous Galerkin (FVM + FEM): high order inside elements, but allow discontinuities. \com{Need Riemann solvers again}
+
+\gb Spectral elements: very high order internal representations
+
+\vspace{1em}
+
+Codes: FEniCS, deal.II
 
 \end{frame}
 
@@ -1299,7 +1367,7 @@ Codes: ...
 % ---------------------------------------------------
 \begin{frame}\ft{Boundary integral methods}
 
-\bmp{3.5in}  
+\bmp{3.5in}
 Use knowledge of PDEs in constructing numerical solutions:
 
 A Green's func $G$ (fundamental soln) needed
