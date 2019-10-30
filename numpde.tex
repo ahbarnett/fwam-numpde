@@ -274,10 +274,11 @@ Note how spectral gets many digits for small $N$
 \gb how many digits to you want? \com{for 1-digit (10\% error), low order ok, easier to code}
 
 \vg
+\pause
 
-\mbox{{\tt <rant>}
+\mbox{{\tt \red{<rant>}}
 test your code w/ {\em known exact soln} to check error conv.
-{\tt <\textbackslash rant>} }
+{\tt \red{<\textbackslash rant>}} }
 
 \quad \com{How big is prefactor $C$ in error $\le Ch^p$ ? \; Has asymp.\ rate even kicked in yet? :)}
 
@@ -288,7 +289,7 @@ test your code w/ {\em known exact soln} to check error conv.
 % ---------------------------------------------------
 \begin{frame}\ft{Higher-order interpolation for smooth $f$: the local idea}
 
-  For any target $x$, use only set of nearest $p$ nodes:
+  Pick a $p$, eg 6. \; For any target $x$, use only the nearest $p$ nodes:
 
   \bmp{2.9in}
 
@@ -350,6 +351,8 @@ where $\ell_j(x)$ is $j$th Lagrange basis func:
   Want increase order $p$. Use {\em all} data, get single $\tilde f(x)$, so $p=N$?
   \hfill\com{``global''}
 
+  \pause
+  
   $p=N=32$, smooth (analytic) $f(x) = \frac{1}{1+9x^2}$ on $[-1,1]$ : \hfill\who{Runge 1901}
   
   \pig{2.2in}{figs/demopoly1}
@@ -392,7 +395,7 @@ where $\ell_j(x)$ is $j$th Lagrange basis func:
 
 \begin{noframe}\ft{Node choice and adaptivity}
 
-Recap: poly approx.\ $f(x)$ on $[a,b]$ has good \& bad node sets $\{x_j\}_{j=1}^N$
+Recap: poly approx.\ $f(x)$ on $[a,b]$: exist good \& bad node sets $\{x_j\}_{j=1}^N$
 
 \sg
 
@@ -574,7 +577,7 @@ That's theory. In real life you always \ora{measure} your conv.\ order/rate!
 
 \hg
 
-Take-home:
+Messages:
 
 \gb $f$ smooth, periodic, global interpolation w/ uniform grid: spectral acc.\
 
