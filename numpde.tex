@@ -616,6 +616,7 @@ FFT \com{cost $\bigO(N\log N)$} swaps from $f(x_j)$ \com{grid} to $\hat f_k$ \co
 If {\em cannot} choose the nodes:
     interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
 
+    \hg
 
   \bmp{2.2in}
   \quad \com{eg google terrain: $f(\x)$ rough $\rightarrow$ garbage:}
@@ -623,8 +624,9 @@ If {\em cannot} choose the nodes:
 %\hfill \com{see amusing jump in interp.\ type:}
 
 \vg
+\uncover<3->{%u
 
-Or if know $f$ smooth
+But if know $f$ smooth:
 
 \quad \com{locally fit multivariate polynomials}
 
@@ -632,7 +634,7 @@ Or if know $f$ smooth
 
 If also data noisy, many methods:
 
-\quad  \com{kriging (Gauss.\ proc.), NUFFT, RBFs}
+\quad  \com{kriging (Gauss.\ proc.), NUFFT, RBF\dots}
 
 \sg
 
@@ -640,10 +642,10 @@ If also high dim $d\gg 1$:
 
 %\quad\com{  sparse grids}
 
-\quad\com{  neural networks, tensor networks}
+\quad\com{  tensor train, neural networks\dots}
 
 \vg
-
+}%u
   \emp
   \hfill
   \pig{2.2in}{figs/gterrain_lab}
@@ -688,7 +690,7 @@ Examples:
 % unique
    $\{w_j\}$ integrating degree $N{-}1$ exactly
 
-   \qquad \com{err $\bigO(\rho^{-N})$ \hfill solve lin sys
+   \qquad \com{$f$ analytic: err $\bigO(\rho^{-N})$ \hfill solve lin sys
      $V^T \mbf{w} = \{\int_a^b x^k dx\}_{k=0}^{N-1}$
      %\{monomial integrals\}
    } \; \who{Newton--Cotes}
@@ -712,9 +714,9 @@ Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\
 
 \pause
 
-\quad demo: {\tt \small N=14; sum(exp(cos(2*pi*(1:N)/N)))/N - besseli(0,1)}
+\quad \lb{demo}: \; {\tt \small N=14; sum(exp(cos(2*pi*(1:N)/N)))/N - besseli(0,1)}
 
-\hspace{1in} {\tt \small ans = 1.3e-15}
+\hspace{1.1in} {\tt \small ans = 1.3e-15}
 
   
 \end{noframe}
@@ -724,40 +726,59 @@ Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\
 \begin{frame}\ft{Advanced integration}
 
   \gb custom quadr.\ for singularity \; \com{eg $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$}
-
+\hfill \who{Rokhlin school}
+  
   \qquad or for arb.\ set of funcs.\ \com{``generalized Gaussian quad.''}
 \hfill \who{CCM: Manas Rachh}
 
 \gb high-order end-corrections to uniform trap.\ rule \hfill \who{Alpert '99}
- 
-\vdots
 
-%\gb changes of variables \com{eg sinh-tanh transform to remove endpoint singularities}
+\gb oscillatory functions: deform contour to $\mathbb{C}$\; \com{``numerical steepest descent''}
+
+%\gb changes of variables \com{eg tanh-sinh transform to remove endpoint singularities}
+
+\dots
 
 \sg
 \pause
 
 \lb{Higher dimensions $d>1$}
+\hfill \com{code: {\tt integral2}, etc, {\tt quadpy}}
 
-For $d$ a few, tensor products of 1D $n$-node grids in each dim
+For $d \lesssim 5$, tensor product quadr.\ of 1D $n$-node grids in each dim
 
-\com{other coord systems, eg sphere, can use tensor product in $(\theta,\phi)$}
+\quad \com{other coord systems: eg sphere can use tensor product in $(\theta,\phi)$. \; Or: iterate over dims.}
 
-\com{adaptivity works: subdivide into boxes} \com{same pic as for interp.}
+adaptivity works: automatically refine boxes
+ \; \com{but soon enter research territory!}
+
+$\int_\Omega f(\x)d\x$ in nasty domain $\Omega\subset \mathbb{R}^d$ ?
+\; \com{FEM meshing, blended conforming grids\dots}
+%  boxes blending to boundary-conforming grid}
+
     
 \vg
-  
+\pause
+
+\bmp{3.9in}
   \lb{Much higher $d\gg 1$}
 
-  Now exponential cost $N=n^d$ kills you :(
+  tensor prod: exp.\ \# $f$ evals.\ $N=n^d$ kills you :( \;\com{``curse of dim.''}
 
-  Are ``sparse grids'' scaling better \com{rely on funcs aligning w/ axes}
   
-  Monte Carlo methods: sum $N$ values of $f(\x_j)$ for $\x_j$ random points
+  \gb  ``sparse grids'' \; \com{scale better as $N \sim n (\log n)^d$} \hfill \who{Smolyak '63}
+% scaling according to Gerstner review article.
+  \emp
+  \hfill\pig{.6in}{figs/sparsegrid2d}
   
-  \quad error $= \bigO(N^{-1/2})$  \com{1/2-order acc, indep of dim $d$}
+  %\com{rely on funcs aligning w/ axes}
+  
+  \gb (quasi-)Monte Carlo: $\sum_{j=1}^N f(\x_j)$, for random $\x_j$
+  \;\com{err $\bigO(N^{-1/2})$, slow conv!}
 
-*** check
+  \qquad \com{importance sampling \who{Thurs am session}, custom transformations\ldots}
+  
+% how does variance prefactor scale w/ dim d?
   
  % \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
 
