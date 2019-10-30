@@ -942,6 +942,7 @@ Produce numerical approximations to the solutions of ODEs/PDEs.
 \lb{Goals for today}
 
 Basic overview of how different methods work.
+
 Understand error properties and suitability for different equations.
 
 \pause
@@ -1276,10 +1277,10 @@ Codes: e.g.\ Pencil code (magnetohydrodynamics)
 \gb Integrate flux terms by parts:
 %
 \begin{equation}
-	\int \psi_m \nabla \cdot \mbf{j} \,d\mbf{x} = \int \mbf{n} \cdot \mbf{j} \,dS
+	\int \psi_m \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\Omega_i} \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\delta \Omega_i} \mbf{n} \cdot \mbf{j} \,dS
 \end{equation}
 
-\gb Requires integrating fluxes at cell interfaces
+\gb Requires integrating fluxes at cell interfaces (usually 2nd order)
 
 \qquad \com{Many methods for Riemann solvers/flux reconstruction: TVD, ENO, WENO, ...}
 
@@ -1306,7 +1307,7 @@ Codes: Arepo, Athena, OpenFOAM
 
 Traditional FEM
 
-\gb Use piecewise linear ``tent'' functions. \com{Continuous}
+\gb Use piecewise linear ``tent'' functions. \com{Continuous, 2nd order}
 
 \gb ``Weak form'' from integrating by parts:
 %
@@ -1395,7 +1396,7 @@ Other geometries: other polynomials, spherical harmonics, ...
 
 \gb Very flexible in terms of equations.
 
-\gb No exact conservation... but very high accuracy. \com{Good diagnostics!}
+\gb Not exactly conservative... but very accurate. \com{Use conservation as a diagnostic!}
 
 \pause
 
@@ -1416,22 +1417,42 @@ Codes: Chebfun (MATLAB), ApproxFun (julia), Dedalus (Python)
 % ---------------------------------------------------
 \begin{frame}\ft{Boundary integral methods}
 
-\bmp{3.5in}
-Use knowledge of PDEs in constructing numerical solutions:
+Use knowledge of PDEs in constructing solutions:
 
-A Green's func $G$ (fundamental soln) needed
+\gb Linear PDEs dominated by boundary terms
 
-eg $\Delta G = \delta$
+\gb Solutions involve integrals of fundamental solution (Green's function):
+
+\qquad \com{Reduced dimensionality. Improved conditioning. Low-rank iterations and fast methods.}
+
+\sg
+\sg
+
+\bmp{3in}
+\small
+E.g. for Poisson's equation: $\Delta u(\mbf{x}) = f(\mbf{x})$
+%
+\begin{equation*}
+	u(\mbf{x}) = \int G(\mbf{x}, \mbf{y}) f(\mbf{y}) \,d\mbf{y}
+\end{equation*}
+%
+\begin{equation*}
+	\Delta G(\mbf{x}, \mbf{y}) = \delta(\mbf{x} - \mbf{y}), \quad G(\mbf{x}, \mbf{y}) = \frac{1}{4 \pi |\mbf{x} - \mbf{y}|}
+\end{equation*}
+
 \emp
-\hfill\pig{1.1in}{figs/bie}
+\hfill\pig{1.5in}{figs/bie}
 
-For linear PDEs dominated by boundary rather than bulk terms, compute solution by forming integral equation of the fundamental solution/Green's function. Reduced dimensionality. Improved conditioning. Low-rank interactions and fast methods. Reconstruct solution in the bulk.
+\sg
+\sg
 
-Examples: Stokes flow, Helmholtz, Maxwell, typically with homogeneous media
+Examples: Stokes flow, Helmholtz equation, Maxwell equations 
 
-heavily uses high-order integration methods
+\qquad \com{Usually homogeneous media}
 
-\gb see Jun Wang's talk later today!
+\sg
+
+Many experts in CCM \& CCB.  See Jun Wang's talk later today!
 
 \end{frame}
 
