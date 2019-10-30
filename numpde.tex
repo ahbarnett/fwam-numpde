@@ -1337,30 +1337,79 @@ Codes: FEniCS, deal.II
 % ---------------------------------------------------
 \begin{frame}\ft{Spectral methods}
 
-  % can refer back to D matrix, which was nodes-to-nodes.
-  % intro idea of Cheby basis ($\approx$ FFT of node values)
+\small
   
-Limit of very few elements with very large p: exponential accuracy for smooth problems
+\gb Expand variables in global basis functions (FEM with one element)
 
-Traditional techniques: Fourier spectral methods.
+\gb Solve Galerkin projection of equations.  \com{But don't integrate by parts}
 
-\gb Fast due to FFT: optimal complexity with exponential accuracy
+\gb \textbf{Exponential} accuracy for smooth solutions
 
-\gb Limited to simple geometries / equations with symmetries
+\pause
 
-Polynomial spectral methods
+\vspace{1em}
 
-\gb More flexible in terms of equations
+Periodic intervals: Fourier series for test/trial functions. \com{Fast w/ FFT}
 
-\gb Still limited to simple geometries: cubes, spheres, cylinders, etc.
+\qquad \com{$M$ and $S$ matrices typically diagonal, even in multiple dimensions!}
+%
+\begin{equation}
+	\nabla^2 \exp(i \mbf{k} \cdot \mbf{x}) = - k^2 \exp(i \mbf{k} \cdot \mbf{x})
+\end{equation}
 
-\gb Still a weak method, but don't integrate by parts. Apply Galerkin directly.
+\pause
 
-Modern research: sparse methods for arbitrary equations.
+\vspace{0.5em}
 
-Resources: ...
+Non-periodic intervals: Chebyshev polynomials $T_n(x)$. \com{Fast w/ DCT}
 
-Codes: ...
+\qquad \com{Traditional: ``collocation'' using values at Chebyshev nodes. Dense matrices.}
+
+\qquad \com{Modern: $M$ and $S$ banded with right choice of test functions}.
+
+\begin{center}
+	\pig{2in}{figs/fig_chebyshev_deriv_matrices}
+\end{center}
+
+Other geometries: other polynomials, spherical harmonics, ...
+
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Spectral methods}
+
+\small
+
+\gb \textbf{Exponential} accuracy for smooth solutions. \com{Need to regularize discontinuities}
+
+\begin{center}
+	\pig{1.3in}{figs/fig_OT_image}
+	\hspace{1em}
+	\pig{2in}{figs/fig_OT_line}
+\end{center}
+
+\pause
+
+\gb Restricted to simple geometries. \com{Boxes, spheres, disks, ...}
+
+\gb Very flexible in terms of equations.
+
+\gb No exact conservation... but very high accuracy. \com{Good diagnostics!}
+
+\pause
+
+\vspace{1em}
+
+Modern research: sparse methods for arbitrary equations in more geometries.
+
+\pause
+
+\sg
+
+Resources: Boyd ``Chebyshev and Fourier Spectral Methods''
+
+Codes: Chebfun (MATLAB), ApproxFun (julia), Dedalus (Python)
 
 \end{frame}
 
