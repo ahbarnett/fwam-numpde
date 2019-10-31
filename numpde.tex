@@ -1167,7 +1167,7 @@ Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
 \gb Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
 
 {\small
-\quad E.g.\ forward Euler: use 1st-order forward difference
+\quad E.g.\ forward Euler: use 1st-order forward difference \quad \com{$k = $ timestep; $u_n := u(kn)$}
 %
 \begin{align*}
 	u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
