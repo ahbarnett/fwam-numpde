@@ -1,0 +1,1581 @@
+% FWAM lecture. Func Approx & PDE. CCM beamer template.
+%
+% Build:
+% pdflatex -shell-escape numpde; bibtex numpde; pdflatex numpde
+%
+% (here -shell-escape lets it call epstopdf to convert .eps to .stuff.pdf)
+
+\documentclass[t,handout]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{epstopdf}  % handle EPS
+
+\usepackage{multimedia,hyperref}   % embeds but needs external movie files
+
+\usepackage{bm,tcolorbox}
+
+% Alex's macros for beamer. Use macros to let you type less stuff
+\newcommand{\ft}[1]{\frametitle{#1}}
+% note: can't make macros for begin/end frame: http://tex.stackexchange.com/questions/326787/difficulty-in-creating-macro-newcommand-for-the-beginning-and-end-of-frames-i
+
+% frame box on next slide
+\newcommand<>{\tmpbox}[1]{
+    \definecolor{colorbox}{RGB}{255,255,255}
+    \only#2{\definecolor{colorbox}{RGB}{255,128,0}}
+    \tcbox[left=0pt,right=0pt,top=0pt,bottom=0pt,colback=white,colframe=colorbox,nobeforeafter,tcbox raise base]{#1}
+}
+% https://tex.stackexchange.com/questions/186044/how-a-framebox-will-appear-around-the-text-on-a-click
+
+\input{rgb}
+\newcommand{\lb}[1]{{\color{blue}#1}}    % from prosper azure titles
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\mbf}[1]{{\bm #1}}           % requires bm package
+\newtheorem{thm}{Theorem}
+\newcommand{\ig}[2]{\includegraphics[#1]{#2}}
+\newcommand{\tbox}[1]{{\mbox{\tiny #1}}}
+\newcommand{\cbox}[1]{{\mbox{\scriptsize #1}}}
+%\newcommand{\who}[1]{{\tiny \textcolor{green}{(#1)}}}
+\newcommand{\who}[1]{{\scriptsize \textcolor{darkgreen}{(#1)}}}
+\newcommand{\whoc}[1]{{\scriptsize \textcolor{darkgreen}{#1}}} % use w/ \cite
+\newcommand{\com}[1]{{\scriptsize \textcolor{purple}{#1}}}      % comment
+\newcommand{\co}[1]{\mbox{\scriptsize \tt \textcolor{black} #1}}          % code
+\newcommand{\vg}{\vspace{2ex}}
+\newcommand{\sg}{\vspace{1ex}}
+\newcommand{\hg}{\vspace{0.5ex}}
+\newcommand{\gb}{\ensuremath{\textcolor{darkgreen}{\bullet\;}}\ }
+\newcommand{\bmp}[1]{\begin{minipage}{#1}}
+\newcommand{\bmpt}[1]{\begin{minipage}[t]{#1}}
+\newcommand{\emp}{\end{minipage}}
+\newcommand{\pig}[2]{\bmp{#1}\includegraphics[width=#1]{#2}\emp} % mp-fig, nogap
+\newcommand{\pigm}[3]{\bmp{#1}\href{#3}{\includegraphics[width=#1]{#2}}\emp} % w/ movie
+\newcommand{\ora}[1]{{\color{CCMorange} #1}}
+\newcommand{\gre}[1]{{\color{darkgreen} #1}}
+\newcommand{\yel}[1]{{\color{yellow} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\sr}[1]{{\scriptsize #1}}
+\newcommand{\vt}[2]{\biggl[\begin{matrix}#1\\#2\end{matrix}\biggr]} % 2-col-vec
+\newcommand{\mt}[4]{\biggl[\begin{matrix}#1&#2\\#3&#4\end{matrix}\biggr]} %2x2
+
+% macros for this work
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\sfrac}[2]{\mbox{\small $\frac{#1}{#2}$}}
+\newcommand{\half}{\sfrac{1}{2}}
+\newcommand{\bigO}{{\mathcal O}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\x}{\mbf{x}}
+\newcommand{\y}{\mbf{y}}
+
+
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\re}{Re}
+
+\title{FWAM Session B: Function Approximation and Differential Equations}
+\date{Wednesday afternoon, 10/30/19}
+\author{\textbf{Alex Barnett}\inst{1} and \textbf{Keaton Burns}\inst{2}}
+\institute{\inst{1} Center for Computational Mathematics, Flatiron Institute\\
+  \inst{2} Center for Computational Astrophysics, Flatiron Institute,
+  and Department of Mathematics, MIT
+}
+
+\usetheme{CCM}
+
+% see: https://tex.stackexchange.com/questions/124256/how-do-i-get-numbered-entries-in-a-beamer-bibliography
+\setbeamertemplate{bibliography item}{{\textcolor{darkgreen}\insertbiblabel}}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+%Abstract:
+%I overview key concepts and practical methods for efficient and accurate numerical function approximation, integration and differentiation. This is the basis for spectral and other ODE/PDE solvers coming up in the next talk. I will teach concepts such as convergence rate, local/global, adaptivity, rounding error, polynomial and Fourier bases. The focus is on 1D, with pointers to higher-dimensional methods and codes.
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{}
+
+\vspace{10ex}
+
+\bc
+\ora{  LECTURE 1
+\vg
+
+interpolation, integration, differentiation, spectral methods
+}
+\ec
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Goals and plan}
+  
+  \lb{Overall}: graph of $f(x)$ needs $\infty$ number of points to describe, so how
+
+  handle $f$ to user-specified accuracy in computer w/ least cost? \com{(bytes/flops)}
+  
+\pause
+  
+  \bi
+
+\item
+  Interpolation:  also key to numerical ODE/PDEs\ldots
+
+task: given exact $f(x_j)$ at some $x_j$, model $f(x)$ at other points $x$?
+
+\quad\com{App: cheap but accurate ``look-up table'' for possibly expensive func.}
+
+\quad\com{Contrast: fit noisy data = 
+  learning (pdf for) params in model, via likelihood/prior}
+
+\item Numerical integration:
+
+  \quad\com{App: computing expectation values, given a pdf or quantum wavefunc.}
+
+  \quad\com{App: integral equation methods for PDEs \;\who{Jun Wang's talk}}
+  
+\item Numerical differentiation:
+
+  \quad\com{App: build a matrix (linear system) to approximate an ODE/PDE\; \who{Lecture II}}
+
+  \quad\com{App: get gradient $\nabla f$, eg for optimization \;
+    \who{cf adjoint methods}
+  }
+\ei  
+
+\pause
+\sg
+
+\lb{Key concepts:} %key throughout numerical analysis}:
+
+convergence rate, degree of smoothness of $f$, global vs local,
+
+spectral methods, adaptivity, rounding error \& catastrophic cancellation
+
+\sg
+\pause
+
+\lb{Plus:} good 1D tools, pointers to codes, higher dim methods, opinions!
+
+\end{noframe}
+
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Interpolation in 1D ($d=1$)}
+
+\bmp{3in}
+  Say $y_j = f(x_j)$ known at nodes $\{x_j\}$ \quad \com{$N$-pt ``grid''}
+
+  \quad\com{note: exact data, not noisy}
+  
+  want interpolant $\tilde f(x)$, s.t.\ $\tilde f(x_j)=y_j$
+  \emp
+  \hfill
+\pig{1.5in}{figs/fsamp}
+
+\pause
+\sg
+
+\bmp{3.9in}
+  hopeless w/o assumptions on $f$, eg smoothness, otherwise\dots
+
+  \gb extra info helps, eg $f$ periodic, or $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$
+  \emp
+  \hfill
+\pig{.6in}{figs/fcrazy}
+
+\pause
+\vg
+
+\bmp{3in}
+\lb{Simplest}: use value at $x_j$ nearest to $x$
+
+\hfill
+\com{``snap to grid''}
+%\com{$h=x_{j+1}-x_j$}
+
+Error $\max_x|\tilde f(x)-f(x)| = \bigO(h)$ as $h\to 0$
+
+\quad \com{holds if $f'$ bounded; ie $f$ can be nonsmooth but not crazy}
+  
+\emp
+\hfill
+\pig{1.3in}{figs/fsnap}
+
+\sg
+
+\gre{Recap %asymptotic
+notation
+  ``$\bigO(h)$'': exists $C,h_0$ s.t.\ error $\le Ch$ for all $0<h<h_0$}
+
+\pause
+\vg
+
+\bmp{3in}
+\lb{Piecewise linear}:
+\hfill \com{``connect the dots''}
+
+\sg
+
+max error $ = \bigO(h^2)$ as $h\to 0$
+
+\quad \com{needs $f''$ bounded, ie smoother than before}
+  
+\emp
+\hfill
+\pig{1.3in}{figs/flin}
+
+\sg
+
+Message: a higher order method is {\em only} higher order if $f$ smooth enough
+
+\end{noframe}
+
+
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Interlude: convergence rates}
+
+  Should know or measure convergence rate of any method you use
+
+\gb ``effort'' parameter $N$ \hfill \com{eg \# grid-points = $1/h^d$ where $h = $ grid spacing,  $d=$ dim}
+
+We just saw algebraic conv.\ error $=\bigO(N^{-p})$, for order $p=1,2$
+
+\pause
+
+There's only one graph in numerical analysis: \framebox{``relative error vs effort''}
+
+\sg
+
+\pig{2.2in}{figs/convloglog}
+\pause
+\hfill
+\pig{2.2in}{figs/convlinlog}
+\pause
+
+\sg
+
+Note how spectral gets many digits for small $N$
+\hfill \com{crucial for eg 3D prob.}
+%Let's say a 3D prob.\ must have $N\le 300$: here spectral is 
+
+\com{``spectral'' = ``superalgebraic'', beats $\bigO(N^{-p})$ for any $p$}
+
+\gb how many digits to you want? \com{for 1-digit (10\% error), low order ok, easier to code}
+
+\vg
+\pause
+
+\mbox{{\tt \red{<rant>}}
+test your code w/ {\em known exact soln} to check error conv.
+{\tt \red{<\textbackslash rant>}} }
+
+\quad \com{How big is prefactor $C$ in error $\le Ch^p$ ? \; Has asymp.\ rate even kicked in yet? :)}
+
+%You may not believe your model, but at least should trust its soln
+
+\end{noframe}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Higher-order interpolation for smooth $f$: the local idea}
+
+  Pick a $p$, eg 6. \; For any target $x$, use only the nearest $p$ nodes:
+
+  \bmp{2.9in}
+
+  Exists unique degree-$(p{-}1)$ poly, $\sum_{k=0}^{p-1} c_k x^k$
+  
+  \quad which matches local data $(x_j,y_j)_{j=1}^p$
+  
+  \quad \com{generalizes piecewise lin. idea}
+
+  \quad \com{do \red{not} eval poly outside its central region!}
+  
+  \emp
+  \hfill
+  \pig{1.6in}{figs/flocpoly}
+  \pause
+  
+  \gb error $\bigO(h^{p})$, ie high order, but $\tilde f$ {\em not} continuous ($\tilde f \notin C$) \hfill\com{has small jumps}
+
+  \quad \com{if must have cont, recommend splines, eg cubic $p=3$:
+    $\tilde f\in C^2$, meaning $\tilde f''$ is cont.}
+%   as target $x$ moves, ``jumps'' to another poly,
+  
+\pause
+
+\vg
+
+\lb{How to find this degree-$(p{-}1)$ poly?}
+
+1) crafty: solve square lin sys for coeffs\quad 
+$\sum_{k<p} x_j^k c_k = y_j$ \hfill \com{ $j=1,\dots,p$}
+
+\qquad ie, \; $V\mbf{c} = \y$ \qquad \com{$V$=''Vandermonde'' matrix, is ill-cond.\ but works}
+
+\pause
+2) traditional: barycentric formula
+$\displaystyle \tilde f(x) = \frac{\sum_{j=1}^p \frac{y_j}{x-x_j}w_j}{\sum_{j=1}^p \frac{1}{x-x_j}w_j}$
+\bmp{1in}
+
+\hfill \com{$w_j = \frac{1}{\prod_{i\neq j}(x_j-x_i)}$}
+
+\vg
+
+\hfill\whoc{\cite[Ch.~5]{ATAP}}
+\emp
+
+\sg
+
+Either way, $\tilde f(x) = \sum_{j=1}^p y_j \ell_j(x)$
+where $\ell_j(x)$ is $j$th Lagrange basis func:
+
+\qquad \pig{2in}{figs/lag}
+
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Global polynomial (Lagrange) interpolation?}
+
+  Want increase order $p$. Use {\em all} data, get single $\tilde f(x)$, so $p=N$?
+  \hfill\com{``global''}
+
+  \pause
+  
+  $p=N=32$, smooth (analytic) $f(x) = \frac{1}{1+9x^2}$ on $[-1,1]$ : \hfill\who{Runge 1901}
+  
+  \pig{2.2in}{figs/demopoly1}
+  \hfill
+  \uncover<3->{
+  \pig{2.2in}{figs/demopoly2}
+  }
+  
+\pause
+  \gb warning: \red{unif.\ grid, global interp.\ fails} \; \com{$\rightarrow$ only use locally in central region}
+%  interval $[a,b]$
+
+  \pause
+  \bmp{2.9in}
+  But exists good choice of nodes\ldots
+
+\hg
+  
+  ``Chebychev'': \com{means non-unif.\ grid density $\sim \frac{1}{\sqrt{1-x^2}}$}
+
+  \gb our first spectral method % basis of higher-dim $d>1$ methods\ldots
+
+\quad   max err $=\bigO(\rho^{-N})$
+\hfill \com{exponential conv!}
+  
+\quad \com{  $\rho>1$ ``radius'' of largest
+  ellipse in which $f$ analytic}
+  
+\emp
+\hfill
+  \pig{1.65in}{figs/bern}
+
+% * give the rate rho = 1.39.. ?  x=1i/3; rho=abs(x + sqrt(x^2-1)), rho^-32
+  
+% * Lebesgue const?
+
+  
+  
+\end{noframe}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% HACKED TO HAVE TWO VERSIONS OF THIS SLIDE &&&&&
+\begin{noframe}\ft{Node choice and adaptivity}
+
+Recap: poly approx.\ $f(x)$ on $[a,b]$: exist good \& bad node sets $\{x_j\}_{j=1}^N$
+
+\sg
+
+  \lb{Question}: Do {\em you} get to choose the set of nodes at which $f$ known?
+
+\sg
+  
+  \gb data fitting applications: No \com{(or noisy variants: kriging, Gaussian processes, etc)}
+
+  \qquad \com{use local poly (central region only!), or something stable (eg splines)} \hfill\whoc{\cite{GCbook}}
+  
+  \gb almost all else, interp., quadrature, PDE solvers: Yes
+  \hfill \com{so pick good nodes!}
+
+  \pause
+  \vg
+  
+\lb{Adaptivity idea}
+\hfill \com{global is \red{inefficient} if $f$ smooth in most places, but not everywhere}
+
+\pause
+\sg
+
+ \pig{3.2in}{figs/adap1}
+\end{noframe}
+
+%%%%%%%%%%%%%%%%%%%%%%5 2ND VERSION
+ \begin{noframe}\ft{Node choice and adaptivity}
+
+Recap: poly approx.\ $f(x)$ on $[a,b]$: exist good \& bad node sets $\{x_j\}_{j=1}^N$
+
+\sg
+
+  \lb{Question}: Do {\em you} get to choose the set of nodes at which $f$ known?
+
+\sg
+  
+  \gb data fitting applications: No \com{(or noisy variants: kriging, Gaussian processes, etc)}
+
+  \qquad \com{use local poly (central region only!), or something stable (eg splines)} \hfill\whoc{\cite{GCbook}}
+  
+  \gb almost all else, interp., quadrature, PDE solvers: Yes
+  \hfill \com{so pick good nodes!}
+
+  \pause
+  \vg
+  
+\lb{Adaptivity idea}
+\hfill \com{global is \red{inefficient} if $f$ smooth in most places, but not everywhere}
+
+\pause
+\sg
+
+ \pig{3.2in}{figs/adap2}
+ \hfill
+ \bmp{1.2in}
+% Given tolerance $\eps$ (eg $10^{-12}$)
+
+ automatically split
+ 
+(recursively) panels
+
+ until max err $\le\epsilon$
+
+\sg
+ 
+ \com{via test for local error}
+ 
+ \emp
+
+\vg
+ 
+1D adaptive interpolator codes to try:
+
+ \gb {\tt github:dbstein/function\_generator}
+ \; \com{py+numba, fast} \hfill \who{Stein '19}
+
+ \gb {\tt chebfun} for MATLAB
+\; \com{big-$N$ Cheb.\ grids done via FFTs!}
+\hfill  \who{Trefethen et al.}
+
+\sg
+ 
+App.:  replace nasty expensive $f(x)$ by cheap one! \hfill \com{optimal ``look-up table''}
+
+
+\end{noframe}
+   
+% ---------------------------------------------------
+\begin{frame}\ft{Global interpolation of periodic functions I}
+
+  \com{Just did $f$ on intervals $[a,b]$. \;
+    global interp.\ (\& integr., etc.) of smooth {\em periodic} $f$ differs!}
+
+\hg
+
+  Periodic: 
+  $f(x+2\pi)=f(x)$ for all $x$, \quad $f(x) = \sum_{n\in\mathbb{Z}} \hat f_k e^{ikx}$
+  \hfill \com{Fourier series}
+
+\pause
+  
+  Instead of poly's, use \ora{truncated} series \;
+  $\tilde f(x) = \sum_{|k|<N/2} c_k e^{ikx}$ \hfill\com{``trig.\ poly''}
+
+  \sg
+
+  \pause
+\bmp{2in}
+What's best you can do?
+
+\quad get $N$ coeffs right $c_k=\hat f_k$
+
+\sg
+
+\quad error $\sim$ size of tail $\{\hat f_k\}_{|k|\ge N/2}$
+\emp
+\hfill
+\pig{2.6in}{figs/fhat}
+
+%\vspace{-1ex}
+
+\pause
+
+How read off $c_k$ from {\em samples} of $f$ on a grid?
+
+\quad \com{uniform grid best (unlike for poly's!); non-uniform needs
+  linear solve, slow $\bigO(N^3)$ effort}
+
+%  How read off $\mbf{c} := \{c_k\}_{k=-N/2}^{N/2-1}$ from values $\y := \{f(x_j)\}_{j=1}^N$ at nodes?
+
+  Uniform grid $x_j=\frac{2\pi j}{N}$, \; set
+  $c_k  = \frac{1}{N}\sum_{j=1}^N e^{ikx_j} f(x_j)$ \hfill
+  \com{simply $\mbf{c}=FFT[\mbf{f}]$}
+
+\pause
+  
+\quad easy to show $c_k = \dots + \hat f_{k-N} + \hat f_k + \hat f_{k+N} + \hat f_{k+2N} + \dots$
+
+\hfill $ = \; \hat f_k$ \com{ desired }
+$+ \;\sum_{m\neq 0}\hat f_{k+mN}$ \;\com{ aliasing error, small if tail small}
+%  due to discrete sampling}
+
+\sg
+\pause
+
+Summary: given $N$ samples $f(x_j)$, interp.\ error = truncation + aliasing
+
+\quad a crude bound is $\displaystyle\max_{x\in[0,2\pi)} |\tilde f(x)-f(x)| \le 2\sum_{|k|\ge N/2} |\hat f_k|$
+
+\quad \com{ie error controlled by sum of tail}
+
+\end{frame}
+
+
+  % ---------------------------------------------------
+\begin{noframe}\ft{Global interpolation of periodic functions II}
+
+  As grow grid $N$, how accurate is it?
+  \hfill 
+  \com{just derived err $\sim$ sum of $|\hat f_k|$ in tail $|k|\ge N/2$}
+
+\sg
+  
+  \quad \com{Now \;\; $\hat f_k = \frac{1}{2\pi}\int_{0}^{2\pi} f(x) e^{-ikx}dx =
+  \frac{1}{2\pi}\int_{0}^{2\pi} f^{(p)}(x) \frac{e^{-ikx}}{(ik)^p}dx$
+\hfill integr.\ by parts $p$ times}
+
+\sg
+  
+  So for a periodic $f\in C^p$, \; \com{recall first $p$ derivs of $f$ bounded}
+  
+  %has $p$ bounded derivs
+  \qquad $\hat f_k=\bigO(k^{-p})$, tail sum $\bigO(N^{1-p})$ %=\bigO(h^{p-1})$
+  \;\;\com{$(p{-}1)$th order acc.}
+  \hfill\who{better: \cite{tref}}
+  % \;(could tweak)}
+
+\vg
+\pause
+
+Example of: \hfill \framebox{$f$ smoother \;$\leftrightarrow$\; faster $\hat f_k$ tail decay \;$\leftrightarrow$\; faster convergence}
+
+\pause
+
+\sg
+
+Even smoother case: $f$ analytic,\quad
+\com{so $f(x)$ analytic in some complex strip $|\im x|\le \alpha$}
+
+\quad then $\hat f_k = \bigO(e^{-\alpha|k|})$, exp.\ conv.\ $\bigO(e^{-\alpha N/2})$
+\hfill \com{(fun proof: shift the contour)} 
+
+\quad \com{as with Bernstein ellipse, to get exp.\ conv.\ {\em rate} need understand $f$ {\em off its real axis} (wild!)}
+
+\sg
+\pause
+
+Smoothest case: ``band-limited'' $f$ with $\hat f_k=0$, $|k|>k_\tbox{max}$,
+
+\quad then interpolant {\em exact} once $N>2k_\tbox{max}$
+
+\vg
+\pause
+
+That's theory. In real life you always \ora{measure} your conv.\ order/rate!
+
+\hg
+
+Messages:
+
+\gb $f$ smooth, periodic, global interpolation w/ uniform grid: spectral acc.\
+
+\gb key to spectral methods.
+FFT \com{cost $\bigO(N\log N)$} swaps from $f(x_j)$ \com{grid} to $\hat f_k$ \com{Fourier coeffs}
+
+\end{noframe}
+
+
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Flavor of interpolation in higher dims $d>1$}
+
+  \bmp{2.2in}
+  If you {\em can} choose the nodes:
+
+\sg
+  
+  \quad tensor product of 1D grids
+
+  \quad either global
+
+  \quad or adaptively refined boxes %(quad-tree)
+  
+  \emp
+  \pig{1in}{figs/2dugrid_lab}
+  \quad
+  \pig{0.9in}{figs/2dadaptgrid}
+    
+  \hspace{2.2in}
+  \com{periodic, global}
+  \hspace{.3in}
+  \com{adaptive $p=6\times 6$ Cheby}
+
+%\hfill\who{Babb et al '18}  but this is generic
+
+\sg
+\pause
+If {\em cannot} choose the nodes:
+    interp.\ $f(\x)$ from scattered data $\{\x_i\}$ is hard
+
+    \hg
+
+  \bmp{2.2in}
+  \quad \com{eg google terrain: $f(\x)$ rough $\rightarrow$ garbage:}
+% Bavarian pre-alps
+%\hfill \com{see amusing jump in interp.\ type:}
+
+\vg
+\uncover<3->{%u
+
+But if know $f$ smooth:
+
+\quad \com{locally fit multivariate polynomials}
+
+\sg
+
+If also data noisy, many methods:
+
+\quad  \com{kriging (Gauss.\ proc.), NUFFT, RBF\dots}
+
+\sg
+
+If also high dim $d\gg 1$:
+
+%\quad\com{  sparse grids}
+
+\quad\com{  tensor train, neural networks\dots}
+
+\vg
+}%u
+  \emp
+  \hfill
+  \pig{2.2in}{figs/gterrain_lab}
+  
+ \end{noframe}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Numerical integration (back to $d=1$)}
+
+  Task: eval.\ $\int_a^b f(x) dx$ accurately w/ least number of func.\ evals, $N$
+
+\sg
+  
+``quadrature'': nodes $\{x_j\}$, weights $\{w_j\}$, s.t.
+$\int_a^b f(x) dx \approx \sum_{j=1}^N w_j f(x_j)$
+
+\sg
+  
+%Here, usually user gets to choose nodes $x_j$ \hfill\com{so pick best ones!}
+
+Idea: \; get interpolant $\tilde f$ thru data $f(x_j)$ $\rightarrow$ {\em
+    integrate that exactly}
+
+\hfill  \com{``intepolatory quadrature''}
+
+\pause
+\vspace{-1ex}
+
+\bmp{3.3in}
+Examples:
+
+\gb local piecewise linear $\rightarrow$ composite trapezoid rule
+
+   \qquad \com{$w_j=h$ except $h/2$ at ends. \; low-order, err $\bigO(N^{-2})$, avoid!}
+   \emp
+   \hfill
+   \pig{0.9in}{figs/trap}
+
+\sg
+   
+   \gb $N$-node global poly $\rightarrow$ gives
+% unique
+   $\{w_j\}$ integrating degree $N{-}1$ exactly
+
+   \qquad \com{$f$ analytic: err $\bigO(\rho^{-N})$ \hfill solve lin sys
+     $V^T \mbf{w} = \{\int_a^b x^k dx\}_{k=0}^{N-1}$
+     %\{monomial integrals\}
+   } \; \who{Newton--Cotes}
+
+\sg
+   
+   \gb better: ``Gaussian'' $\{x_j,w_j\}$ integrates deg.\ $2N{-}1$
+   exactly! \hfill \com{err $\bigO(\rho^{-2N})$}
+
+Adaptive quadrature (Gauss in each panel) excellent: \com{codes {\tt quadgk}, {\tt scipy}, etc}
+
+\sg
+\pause
+
+\gb periodic case: $x_j=\frac{2\pi j}{N}$, $w_j=\frac{2\pi}{N}$ excellent
+\quad \com{``periodic trap.\ rule''}
+
+\qquad \com{easy to check integrates $e^{ikx}$ exactly for $|k|<N$, ``Gaussian''}
+
+\qquad \com{$f$ analytic in $|\im x|<\alpha$ gives exp.\ conv.\ $\bigO(e^{-\alpha N})$, twice as good as interp!}
+
+\pause
+
+\quad \lb{demo}: \; {\tt \small N=14; sum(exp(cos(2*pi*(1:N)/N)))/N - besseli(0,1)}
+
+\hspace{1.1in} {\tt \small ans = 1.3e-15}
+
+  
+\end{noframe}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{Advanced integration}
+
+  \gb custom quadr.\ for singularity \; \com{eg $f(x) = \mbox{smooth}\cdot|x|^{-1/2}$}
+\hfill \who{Rokhlin school}
+  
+  \qquad or for arb.\ set of funcs.\ \com{``generalized Gaussian quad.''}
+\hfill \who{CCM: Manas Rachh}
+
+\gb high-order end-corrections to uniform trap.\ rule \hfill \who{Alpert '99}
+
+\gb oscillatory functions: deform contour to $\mathbb{C}$\; \com{``numerical steepest descent''}
+
+%\gb changes of variables \com{eg tanh-sinh transform to remove endpoint singularities}
+
+\dots
+
+\sg
+\pause
+
+\lb{Higher dimensions $d>1$}
+\hfill \com{code: {\tt integral2}, etc, {\tt quadpy}}
+
+For $d \lesssim 5$, tensor product quadr.\ of 1D $n$-node grids in each dim
+
+\quad \com{other coord systems: eg sphere can use tensor product in $(\theta,\phi)$. \; Or: iterate over dims.}
+
+adaptivity works: automatically refine boxes
+ \; \com{but soon enter research territory!}
+
+$\int_\Omega f(\x)d\x$ in nasty domain $\Omega\subset \mathbb{R}^d$ ?
+\; \com{FEM meshing, blended conforming grids\dots}
+%  boxes blending to boundary-conforming grid}
+
+    
+\vg
+\pause
+
+\bmp{3.9in}
+  \lb{Much higher $d\gg 1$}
+
+  tensor prod: exp.\ \# $f$ evals.\ $N=n^d$ kills you :( \;\com{``curse of dim.''}
+
+  
+  \gb  ``sparse grids'' \; \com{scale better as $N \sim n (\log n)^d$} \hfill \who{Smolyak '63}
+% scaling according to Gerstner review article.
+  \emp
+  \hfill\pig{.6in}{figs/sparsegrid2d}
+  
+  %\com{rely on funcs aligning w/ axes}
+  
+  \gb (quasi-)Monte Carlo: $\sum_{j=1}^N f(\x_j)$, for random $\x_j$
+  \;\com{err $\bigO(N^{-1/2})$, slow conv!}
+
+  \qquad \com{importance sampling \who{Thurs am session}, custom transformations\ldots}
+  
+% how does variance prefactor scale w/ dim d?
+  
+ % \quad \com{Note MCMC does not easily give $\int f(\x) d\x$, just ratios of such}
+
+  
+\end{frame}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Numerical differentiation}
+
+  Task: given ability to eval.\ $f(\x)$ anywhere, how get $\nabla f(\x)$ ?
+  \hfill\com{assume smooth}
+
+%\qquad \com{obviously again we have to assume $f$ smooth!}
+\sg
+\pause
+
+\lb{Finite differencing} idea, 1D:\;\; $f'(x) = \frac{f(x+h)-f(x-h)}{2h} + \bigO(h^2)$
+\hfill\com{Taylor's thm}
+
+
+\bmp{1.8in}
+\com{``centered difference'' formula}
+
+\vg
+
+Want smallest error:
+
+suggests taking $h\to 0$ ?
+
+\vg
+
+Let's see how that goes\ldots
+\vspace{8ex}
+
+\emp
+\pause
+\hfill\pig{2.7in}{figs/fderr}
+
+\sg
+
+\gb shrinking $\bigO(h^2)$ error gets swamped by a new growing error\dots what?
+
+\pause
+
+\gb CPU arithmetic done only to relative ``rounding error'' $\epsilon_\tbox{mach}\sim 10^{-16}$
+
+\gb subtracting v. close $f(x+h)$ and $f(x-h)$: ``catastrophic cancellation''
+
+\gb balance two error types: $h_\tbox{best} \sim \epsilon_\tbox{mach}^{1/3} \sim 10^{-5}$
+
+\sg
+
+\com{Essential reading: floating point, backward stability}\; \whoc{\cite[Ch.~5--6]{GCbook} \cite[Ch.~12--15]{nla}}
+
+\end{noframe}
+
+
+% ---------------------------------------------------
+\begin{noframe}\ft{High-order (better!) differentiation, $d=1$}
+
+As w/ integration: get interpolant $\rightarrow$ differentiate it exactly
+\hfill \whoc{\cite[Ch.~6]{tref}}
+
+\quad \com{Get $N\times N$ matrix $D$ acting on func.\ values $\{f(x_j)\}$ to give $\{f'(x_j)\}$. Has simple formula}
+
+\sg
+\pause
+
+\bmp{1.4in}
+Examples:
+
+\sg
+
+\quad \com{$N$ Chebychev nodes}
+
+\quad \com{in $[-1,1]$}
+
+\sg
+
+shown: max error in $f'$
+
+\vspace{20ex}
+
+\emp
+\hfill
+\pig{3in}{figs/trefchebdiff_lab.png}
+
+
+\gb for $N$ large, the dense $D$ is never formed, merely applied via FFT
+
+\qquad \com{spectral solvers for ODE/PDEs. codes: {\tt chebfun}, {\tt PseudoPack}, {\tt dedalus}... Lecture II}
+
+\end{noframe}
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{Summary: we scratched the surface}
+
+\vg
+  
+Can integrate \& differentiate smooth funcs given only point values $f(x_j)$
+
+\sg
+
+Both follow from building a good (fast-converging) interpolant
+
+\sg
+
+For $f$ smooth in 1D, can \& should easily get many (10+) digits accuracy
+
+\vspace{3ex}
+
+\lb{Concepts:}
+
+\sg
+
+convergence order/rate \quad  \com{how much effort will you have to spend
+  to get more digits?}
+
+smoothness \hfill \com{smooth $\Leftrightarrow$ fast convergence; \; nonsmooth needs custom methods}
+
+  global \hspace{1in} \com{(one interpolation formula/basis for the whole domain)}
+
+  \quad vs local \hspace{.8in} \com{(distinct formulae for $x$ in different regions)}
+
+  spectral method \hspace{.3in} \com{global, converge v.\ fast, even non-per.\ can exploit FFT}
+%(even non-periodic Cheb.\ case),
+    %er than any fixed order}
+%    $N^{-p}$ for any $p$}
+  
+  adaptivity \hfill \com{auto split boxes to put nodes only where they need to be}
+
+  rounding error \& catastrophic cancellation \quad \com{how not shoot self in the foot}
+
+  tensor products for 2D, 3D \quad \com{for higher dims: randomized/NN/TN}\;\who{Th/Fr sessions}
+  
+%for $d\gg 1$ high dims, see other sessions: random \com{Monte Carlo} and neural networks.
+
+  \vspace{3ex}
+
+See recommended books at end, and come discuss stuff!
+
+\end{frame}
+
+
+
+
+
+% ---------------------------------------------------
+\begin{frame}\ft{LECTURE II: numerical differential equations}
+
+\lb{Motivation}
+
+Produce numerical approximations to the solutions of ODEs/PDEs.
+
+\vspace{1em}
+
+\lb{Goals for today}
+
+Basic overview of how different methods work.
+
+Understand error properties and suitability for different equations.
+
+\pause
+
+\vspace{1em}
+
+\lb{Families of methods}:
+
+\begin{itemize}
+	\item Finite Difference Methods \com{For time \& space.}
+	\pause
+	\item Finite Element Methods \com{Very general}
+	\pause
+	\begin{itemize}
+		\item Finite Volume Methods \com{Fluids}
+		\pause
+		\item ``Traditional'' Finite Elements \com{Mechanics}
+		\pause
+		\item ``Modern'' Finite Elements \com{Higher order}
+		\pause
+		\item Spectral Methods \com{Best accuracy for smooth solutions}
+	\end{itemize}
+	\pause
+	\item Boundary Integral Methods \com{Linear problems w/ boundary data}
+\end{itemize}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{noframe}\ft{Reminder of types and applications of diff.\ eq.}
+
+% feel free to scratch/edit, but some overview is needed
+  
+\gb  ODEs: \com{eg pendulum} $u''(t) + \sin(u(t)) = 0$
+	
+	\qquad Task: solve $u(t)$ given initial conditions \quad \com{e.g. $u(0)=1$, $u'(0)=0$}
+	
+	\pause
+	
+	\qquad \com{Others: local chemical/nuclear reactions ($\mbf{u}(t)$ is vector of multiple components)}
+	
+\pause
+
+\sg
+
+\gb Time-independent PDEs: \com{eg Poisson eqn} \; $\Delta u (\mbf{x}) = g(\mbf{x})$
+
+	\qquad Task: solve $u(\mbf{x})$ given forcing, boundary conditions
+
+	\qquad \com{Steady state of heat/diffusion, Gauss's law for conservative forces}
+
+	\qquad \com{$u(\mbf{x})$ is chemical concentration, gravitational/electric potential}
+	
+	\qquad \com{$\Delta u$ means Laplacian $\partial^2 u/\partial x^2 + \partial^2 u/\partial y^2 + \dots = $ curvature of $u$}
+	
+  	\qquad \com{$g(\x) = $ volume source of chemical, mass or charge density}
+  	
+  	\pause
+
+	\qquad \com{Others: Stokes eqn for velocity field $\mbf{u}$ in viscous fluid}
+  
+	\qquad \com{Others: t-indep.\ Schr\"odinger eqn for quantum systems: $\Delta \psi = (V -E) \psi$}
+
+\sg
+
+\pause
+
+\gb Time-dependent PDEs: \com{eg advection-diffusion} \; $\partial_t c + \nabla \cdot (\mbf{u} c) = \Delta c$
+
+	\qquad Task: solve $c(\x,t)$ given initial \& boundary conditions
+	
+	\qquad \com{Others: Navier-Stokes, magnetohydrodynamics, ...}
+
+\sg
+
+\pause
+
+Choose method based on solution behavior (Mike's talk next)
+
+Or boundary conditions: simple (periodic box) vs complicated domain
+  
+\end{noframe}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Typical solution strategies}
+
+Time-independent PDEs:
+\begin{enumerate}
+	\item Discretize variables (grid points, cells, basis functions)
+	\item Discretize operators/equations (derivatives)
+	\item Solve resulting algebraic system
+\end{enumerate}
+
+\pause
+\sg
+
+Time-dependent PDEs: \com{``method of lines''}
+\begin{enumerate}
+	\item Discretize variables (grid points, cells, basis functions)
+	\item Discretize operators/equations (derivatives)
+	\item Solve resulting coupled ODEs for evolution of coefficients
+\end{enumerate}
+
+\pause
+\sg
+
+ODEs:
+\begin{itemize}
+	\item Treat spatial problems as time-indep.\ PDEs \com{``boundary value problems''}
+	\pause
+	\item Evolve temporal problems with finite differences \com{``initial value problems''}
+\end{itemize}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite difference methods}
+
+Basic viewpoint:
+
+\gb Discretize variables on a discrete grid
+
+\gb Construct Taylor-series approximations to values at neighboring points
+
+\gb Using N points, expand to N terms (error $\bigO(h^N)$)
+
+\gb Eliminate to get approximation to $d$-th derivative (error $\bigO(h^{N-d})$)
+
+\pause 
+
+\sg
+
+{\small
+
+E.g. Centered differences on 3 points: $x-h$, $x$, $x+h$
+%
+\begin{align*}
+	u(x + h) &= u(x) + u'(x) h + u''(x) h^2 / 2 + \bigO(h^3) \\
+	u(x - h) &= u(x) - u'(x) h + u''(x) h^2 / 2 + \bigO(h^3)
+\end{align*}
+
+\pause
+
+To approximate $u'(x)$, subtract to eliminate $u''(x)$:
+%
+\begin{equation*}
+ u'(x)= \frac{u(x+h) - u(x-h)}{2 h} + \bigO(h^2)
+\end{equation*}
+
+\pause
+ 
+To approximate $u''(x)$, add to eliminate $u'(x)$:
+%
+\begin{equation*}
+	u''(x) = \frac{u(x+h) - 2 u(x) + u(x-h)}{h^2} + \bigO(h^2)
+\end{equation*}
+
+}
+
+\begin{center}
+	\com{Extra order here due to symmetry}
+\end{center}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite difference methods}
+
+Alternate viewpoint:
+
+\gb Discretize variables on a discrete grid
+
+\gb Construct interpolating polynomial on N nearest points. 
+
+\qquad \com{Unique, degree N-1.}
+
+\gb Differentiate this local interpolant to approximate derivatives.
+
+\pause
+
+\vspace{1em}
+
+{\small
+
+E.g. Centered differences using 3 points:
+
+\vspace{-1em}
+\begin{center}
+\pig{4in}{figs/fd_local_interp}
+\end{center}
+%
+\pause
+\vspace{-1em}
+\begin{equation*}
+	\Delta u(x) = f(x) \quad \rightarrow \quad D_2 \cdot \mbf{u} = \mbf{f}
+\end{equation*}
+%
+\pause
+\vspace{-1em}
+%
+\begin{equation*}
+	\partial_t u(x) = \Delta u(x) + f(x) \quad \rightarrow \quad \partial_t \mbf{u} = D_2 \cdot \mbf{u} + \mbf{f}
+\end{equation*}
+
+
+}
+
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Implicit \& Explicit Timestepping}
+
+Consider temporal ODE $u'(t) = f(u(t))$.
+
+Timesteppers solve using finite differences to advance $u_n \rightarrow u_{n+1}$
+
+\sg
+
+\pause
+
+\gb Explicit schemes: just need $f(u_n)$. \com{Simple but unstable for large steps}
+
+{\small
+\quad E.g.\ forward Euler: use 1st-order forward difference \quad \com{$k = $ timestep; $u_n := u(kn)$}
+%
+\begin{align*}
+	u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
+	u_{n+1} - u_n &= - k \lambda u_n \\
+	u_{n+1} &= (1 - k \lambda) u_n
+\end{align*}
+}
+\begin{center}
+	\com{$k \lambda < 2$ for stability}	
+\end{center}
+
+\sg
+
+\pause 
+
+\gb Implicit schemes: require inverting $f(u^{n+1})$ \com{Stable but expensive}
+
+{\small
+\quad E.g.\ backward Euler: use 1st-order backward difference
+%
+\begin{align*}
+u'(t) &= - \lambda u(t) \quad \lambda > 0 \\
+u_{n+1} - u_n &= - k \lambda u_{n+1} \\
+u_{n+1} &= (1 + k \lambda)^{-1} u_n
+\end{align*}
+}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite difference methods}
+
+\vspace{2em}
+
+\bmp{3.5in}
+\gb Simple to adjust order of accuracy / directionality
+
+\gb Extends to multiple dimensions with regular grids
+
+\gb Some more advanced techniques:
+
+\qquad \gb Conservative schemes
+
+\qquad \gb Select stencils term by term \com{``upwinding''}
+
+\qquad \gb Adaptive stencil selection for jumps \com{``WENO''}
+
+\gb Restricted to simple geometries / well-structured grids
+
+\emp
+\hfill
+\pig{1in}{figs/fd}  
+
+\vspace{2em}
+
+\pause
+
+Resources: LeVeque ``Finite Difference Methods for ODE/PDE'' \cite{leveque2007finite}
+
+Codes: e.g.\ Pencil code (magnetohydrodynamics)
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite element methods}
+
+\bmp{3.5in}
+
+\gb Partition domain into elements. \com{Unstructured}
+
+\gb Represent variables with basis functions on elements:
+%
+\begin{equation*}
+	u(\mbf{x}) = \sum_{n=1}^{N} u_n \phi_n(\mbf{x})
+\end{equation*} 
+
+\qquad \com{``Trial functions'' $\phi_n$ usually polynomials on each element}
+
+\emp
+\hfill
+\pig{1in}{figs/fem}
+
+\pause
+
+\sg
+
+\gb Solve equations using Galerkin/weighted-residual method:
+%
+\begin{equation*}
+	\partial_t u(\mbf{x}) + L u(\mbf{x}) = f(\mbf{x})
+\end{equation*}
+%
+\begin{equation*}
+	\int \psi_m (\mbf{x}) \left[\partial_t u(\mbf{x}) + L u(\mbf{x}) - f(\mbf{x})\right] \,d\mbf{x} = 0
+\end{equation*}
+%
+\qquad \com{For all ``test functions'' $\psi_m$}
+
+\pause
+
+\gb Solve resulting algebraic system:
+%
+\begin{equation*}
+	M \cdot \partial_t \mbf{u} + S \cdot \mbf{u} = M \cdot \mbf{f}
+\end{equation*}
+%
+\qquad \com{``Mass matrix'' $M$, ``stiffness matrix'' $S$}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite volume methods}
+
+\sg
+
+\bmp{3.5in}
+
+\gb Piecewise constants inside elements
+
+\qquad \com{$M = I$, easy explicit formulation}
+
+\pause
+
+\gb Integrate flux terms by parts:
+%
+\begin{equation*}
+	\int \psi_m \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\Omega_i} \nabla \cdot \mbf{j} \,d\mbf{x} = \int_{\delta \Omega_i} \mbf{n} \cdot \mbf{j} \,dS
+\end{equation*}
+
+\emp
+\pig{0.9in}{figs/fvm_flux}
+
+\sg
+
+\gb Requires integrating fluxes at cell interfaces (usually 2nd order)
+
+\qquad \com{Many methods for Riemann solvers/flux reconstruction: TVD, ENO, WENO, ...}
+
+\pause
+
+\gb Exactly conservative: good for hyperbolic PDEs.  Widely used in CFD.
+
+\gb Similar to finite differences on structured meshes.
+
+\gb Hard to build high-order schemes on unstructured meshes.
+
+\sg
+
+\pause
+
+Codes: Arepo, Athena, OpenFOAM
+
+\com{Many local experts in CCA!}
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Finite element methods}
+
+\sg
+
+\bmp{3.2in}
+Traditional FEM
+
+\gb Use piecewise linear ``tent'' functions.
+
+\qquad \com{Continuous, 2nd order}
+
+\gb ``Weak form'' from integrating by parts:
+%
+\begin{equation*}
+	\int \psi_m \nabla^2 u \,d\mbf{x} = - \int \nabla \psi_m \cdot \nabla u \,d\mbf{x}
+\end{equation*}
+%
+\qquad \com{Lowers order of derivatives, allows linear basis}
+
+\emp
+\pig{1.3in}{figs/Piecewise_linear_function2D}
+
+\pause
+\sg
+
+\gb Not conservative and $M \neq I$, need implicit schemes or to invert $M$
+
+\gb Easy to adjust order of accuracy. \com{Use higher degree polynomials, ``p adaptivity''}
+
+\pause
+
+\vspace{1em}
+
+Modern research: high-order FEM
+
+\gb Discontinuous Galerkin (FVM + FEM): high order inside elements, but allow discontinuities. \com{Need Riemann solvers again}
+
+\gb Spectral elements: very high order internal representations
+
+\pause
+
+\vspace{1em}
+
+Codes: FEniCS, deal.II
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Spectral methods}
+
+\small
+  
+\gb Expand variables in global basis functions (FEM with one element)
+
+\gb Solve Galerkin projection of equations.  \com{But don't integrate by parts}
+
+\gb \textbf{Exponential} accuracy for smooth solutions
+
+\pause
+
+\vspace{1em}
+
+Periodic intervals: Fourier series for test/trial functions. \com{Fast w/ FFT}
+
+\qquad \com{$M$ and $S$ matrices typically diagonal, even in multiple dimensions!}
+%
+\begin{equation*}
+	\nabla^2 \exp(i \mbf{k} \cdot \mbf{x}) = - k^2 \exp(i \mbf{k} \cdot \mbf{x})
+\end{equation*}
+
+\pause
+
+\vspace{0.5em}
+
+Non-periodic intervals: Chebyshev polynomials $T_n(x)$. \com{Fast w/ DCT}
+
+\qquad \com{Traditional: ``collocation'' using values at Chebyshev nodes. Dense matrices.}
+
+\qquad \com{Modern: $M$ and $S$ banded with right choice of test functions}.
+
+\begin{center}
+	\pig{2in}{figs/fig_chebyshev_deriv_matrices}
+\end{center}
+
+\pause
+
+Other geometries: other polynomials, spherical harmonics, ...
+
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Spectral methods}
+
+\small
+
+\gb \textbf{Exponential} accuracy for smooth solutions. 
+\com{Need to regularize discontinuities}
+
+\pause
+
+\begin{center}
+	\pig{1.3in}{figs/fig_OT_image}
+	\hspace{1em}
+	\pig{2in}{figs/fig_OT_line}
+\end{center}
+
+\pause
+
+\gb Restricted to simple geometries. \com{Boxes, spheres, disks, ...}
+
+\gb Very flexible in terms of equations.
+
+\gb Not exactly conservative... but very accurate. \com{Use conservation as a diagnostic!}
+
+\pause
+
+\vspace{1em}
+
+Modern research: sparse methods for arbitrary equations in more geometries.
+
+\pause
+
+\sg
+
+Resources: Boyd ``Chebyshev and Fourier Spectral Methods'' \cite{boyd2001chebyshev}
+
+Codes: Chebfun (MATLAB), ApproxFun (julia), Dedalus (Python)
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Boundary integral methods}
+
+Use knowledge of PDEs in constructing solutions:
+
+\gb Linear PDEs dominated by boundary terms
+
+\gb Solutions involve integrals of fundamental solution (Green's function):
+
+\qquad \com{Reduced dimensionality. Improved conditioning. Low-rank iterations and fast methods.}
+
+\sg
+\sg
+
+\bmp{3in}
+\small
+E.g. for Poisson's equation: $\Delta u(\mbf{x}) = f(\mbf{x})$
+%
+\begin{equation*}
+	u(\mbf{x}) = \int G(\mbf{x}, \mbf{y}) f(\mbf{y}) \,d\mbf{y}
+\end{equation*}
+%
+\begin{equation*}
+	\Delta G(\mbf{x}, \mbf{y}) = \delta(\mbf{x} - \mbf{y}), \quad G(\mbf{x}, \mbf{y}) = \frac{1}{4 \pi |\mbf{x} - \mbf{y}|}
+\end{equation*}
+
+\emp
+\hfill\pig{1.5in}{figs/bie}
+
+\sg
+\sg
+
+Examples: Stokes flow, Helmholtz equation, Maxwell equations 
+
+\qquad \com{Usually homogeneous media}
+
+\sg
+
+Many experts in CCM \& CCB.  See Jun Wang's talk later today!
+
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Summary}
+
+\gb Finite differences: local polynomial approximations, simple and robust
+
+\gb Finite elements: local basis functions, complex geometries
+
+\gb Spectral methods: global basis functions, highly accurate
+
+\gb Integral methods: reduced dimensionality, linear equations
+
+\sg
+\sg
+
+Best method often depends on multiple factors:
+
+\begin{itemize}
+	\item Problem domain (simple vs complicated)
+	\item Behavior of solutions (Mike's talk next)
+	\item Desired accuracy vs cost
+	\item Code availability
+	\item ...
+\end{itemize}
+
+Many local experts on different methods!
+  
+\end{frame}
+
+% ---------------------------------------------------
+\begin{frame}\ft{Recommended accessible reading}
+
+{\scriptsize
+\bibliographystyle{amsalpha}  % abbrv
+\bibliography{numpde}
+}
+
+\vspace{4ex}
+
+This document: \; \url{https://github.com/ahbarnett/fwam-numpde}
+
+\sg
+
+See {\tt code} directory for MATLAB code used to generate figures
+
+
+\end{frame}
+
+
+
+\end{document}
